@@ -1,0 +1,65 @@
+package Model.Entity;
+
+
+import Model.Enums.Level;
+import Model.Enums.Pathology;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.UUID;
+
+@Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+@Table(name = "patients")
+@Builder
+public class Patient {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", updatable = false,unique = true, nullable = false)
+    private UUID id ;
+
+    //------- User Relation--------
+    @OneToOne
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    private User user;
+    //-----------------------------
+
+    @Column(name = "full_name", nullable = false, length = 100)
+    private String fullName;
+
+    @Column(name = "age", nullable = false, columnDefinition = "INTEGER CHECK (age > 0)")
+    private Integer age;
+
+    @Column(name = "phone", nullable = false, length = 20)
+    private String phone;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "pathology", nullable = false)
+    private Pathology pathology;
+
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    @Column(name = "level", nullable = false)
+    private Level level =Level.DEBUTANT;
+
+    //------- Kinesitherapeute Relation---------
+    @ManyToOne
+    @JoinColumn(name = "kine_id", nullable = false)
+    private Kinesitherapeute kine;
+    //------------------------------------------
+
+    //------- Gamifaction---------
+    @Builder.Default
+    @Column(name = "streak_count", nullable = false)
+    private Integer streakCount = 0;
+
+    @Builder.Default
+    @Column(name = "total_xp", nullable = false)
+    private Integer totalXp = 0;
+}
