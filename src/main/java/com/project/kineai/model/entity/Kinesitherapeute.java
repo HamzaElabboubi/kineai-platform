@@ -1,9 +1,10 @@
-package Model.Entity;
+package com.project.kineai.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -46,8 +47,8 @@ public class Kinesitherapeute {
     }
 
     //------- Patient Relation--------
-    @OneToMany(mappedBy = "kine", cascade = CascadeType.ALL, orphanRemoval = true)
-    private java.util.List<Patient> patients;
+    @OneToMany(mappedBy = "kine", orphanRemoval = true)
+    private List<Patient> patients;
     //-----------------------------
 
 }

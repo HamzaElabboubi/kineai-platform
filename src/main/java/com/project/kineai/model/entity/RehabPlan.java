@@ -1,12 +1,11 @@
-package Model.Entity;
+package com.project.kineai.model.entity;
 
-import Model.Enums.Level;
-import Model.Enums.Status;
+import com.project.kineai.model.enums.Level;
+import com.project.kineai.model.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,11 +31,16 @@ public class RehabPlan {
 
     //------- PlanExercise relation--------
     @OneToMany(mappedBy = "rehabPlan", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PlanExercise> planExercises;;
+    private List<PlanExercise> planExercises;
+
+    //------- Session relation ------------
+    @OneToMany(mappedBy = "rehabPlan")
+    private List<Session> sessions;
+    //-------------------------------------
 
     //------- Plan info--------
     @Column(name = "start_date",nullable = false)
-    private LocalDate startDate;;
+    private LocalDate startDate;
 
     @Column(name = "end_date",nullable = false)
     private LocalDate endDate;

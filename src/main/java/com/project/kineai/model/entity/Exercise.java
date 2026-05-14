@@ -1,12 +1,11 @@
-package Model.Entity;
+package com.project.kineai.model.entity;
 
 
-import Model.Enums.BodyZone;
-import Model.Enums.Level;
+import com.project.kineai.model.enums.BodyZone;
+import com.project.kineai.model.enums.Level;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -19,15 +18,9 @@ import java.util.UUID;
 public class Exercise {
 
     @Id
-    @Column(name = "id", updatable = false, unique = true, nullable = false)
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(updatable = false, nullable = false)
     private UUID id ;
-
-    //------- PlanExercise Relation--------
-    @OneToMany(mappedBy = "exercise", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PlanExercise> planExercises;
-    //-----------------------------
-
 
     //------- Basic info--------
 
@@ -65,7 +58,7 @@ public class Exercise {
     private Level difficultyLevel;
 
     //------- Mediapipe config --------
-    @Column(name = "mediapipe_joints", nullable = false, length = 255)
+    @Column(name = "mediapipe_joints", nullable = false,columnDefinition = "TEXT")
     private String mediapipeJoints; // Liste des joints utilisés par MediaPipe, séparés par des virgules
 
 }

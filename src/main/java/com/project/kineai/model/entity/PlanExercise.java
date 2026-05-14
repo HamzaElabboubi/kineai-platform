@@ -1,6 +1,6 @@
-package Model.Entity;
+package com.project.kineai.model.entity;
 
-import Model.Enums.DayOfWeek;
+import com.project.kineai.model.enums.SessionDay;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,23 +11,29 @@ import java.util.UUID;
 @AllArgsConstructor
 @Getter
 @Setter
-@Table(name = "plan_exercises")
+@Table(
+        name = "plan_exercises",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_plan_exercise_day",
+                columnNames = {"rehab_plan_id", "exercise_id", "week_number", "day_of_week"}
+        )
+)
 @Builder
 public class PlanExercise {
 
     @Id
-    @Column(name = "id", updatable = false, unique = true, nullable = false)
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(updatable = false, nullable = false)
     private UUID id ;
 
     //------- RehabPlan Relation--------
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rehab_plan_id", nullable = false)
     private RehabPlan rehabPlan;
     //-----------------------------
 
     //------- Exercise Relation--------
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "exercise_id", nullable = false)
     private Exercise exercise;
     //-----------------------------
@@ -38,7 +44,7 @@ public class PlanExercise {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "day_of_week", nullable = false)
-    private DayOfWeek dayOfWeek;
+    private SessionDay dayOfWeek;
 
     //----------------------------
 

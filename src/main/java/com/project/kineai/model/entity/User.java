@@ -1,6 +1,7 @@
-package Model.Entity;
+package com.project.kineai.model.entity;
 
-import Model.Enums.Role;
+import com.project.kineai.model.enums.Role;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,9 +21,13 @@ public class User {
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id ;
 
+
+
+
     @Column(name = "email",unique = true,length = 150,nullable = false)
     private String email ;
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(name = "password",nullable = false, length = 255)
     private String password ;
 

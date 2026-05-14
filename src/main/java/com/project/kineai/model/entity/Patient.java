@@ -1,8 +1,8 @@
-package Model.Entity;
+package com.project.kineai.model.entity;
 
 
-import Model.Enums.Level;
-import Model.Enums.Pathology;
+import com.project.kineai.model.enums.Level;
+import com.project.kineai.model.enums.Pathology;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -27,6 +27,10 @@ public class Patient {
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
     //-----------------------------
+
+
+
+
 
     @Column(name = "full_name", nullable = false, length = 100)
     private String fullName;
