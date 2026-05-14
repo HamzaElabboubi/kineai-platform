@@ -21,9 +21,6 @@ public class User {
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id ;
 
-
-
-
     @Column(name = "email",unique = true,length = 150,nullable = false)
     private String email ;
 
@@ -40,12 +37,17 @@ public class User {
     private Boolean active = true;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    @Builder.Default
+    private LocalDateTime createdAt = LocalDateTime.now();
 
-    //created_at automatique => Évite de remplir la date manuellement.
-    @PrePersist
-    public void prePersist() {
-        this.createdAt = LocalDateTime.now();
-    }
+    //------- Patient Relation---------
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    private Patient patient;
+    //---------------------------------
+
+    //------- Kinesitherapeute Relation---------
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    private Kinesitherapeute kinesitherapeute;
+    //------------------------------------------
 
 }
