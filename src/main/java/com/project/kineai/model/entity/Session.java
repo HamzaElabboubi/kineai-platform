@@ -48,7 +48,7 @@ public class Session {
     @Column(name = "end_time",nullable = true)
     private LocalDateTime endTime;
 
-    @Column(name = "score",nullable = true,columnDefinition = "DECIMAL CHECK (score>=0 AND score <=100 )    ")
+    @Column(name = "score",nullable = true,columnDefinition = "DECIMAL(5,2) CHECK (score>=0 AND score <=100 )    ")
     private BigDecimal score;
 
     @Column(name = "reps_completed",nullable = false,columnDefinition = "INTEGER CHECK (reps_completed >= 0) ")

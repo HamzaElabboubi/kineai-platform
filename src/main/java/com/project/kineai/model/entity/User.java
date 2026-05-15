@@ -28,17 +28,21 @@ public class User {
     @Column(name = "password",nullable = false, length = 255)
     private String password ;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, updatable = false)
+    @Enumerated( EnumType.STRING)
+    @Column(name ="role",nullable = false, updatable = false)
     private Role role;
 
-    @Column(nullable = false)
+    @Column(name ="active",nullable = false)
     @Builder.Default
     private Boolean active = true;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    @Builder.Default
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void prePersist() {
+        this.createdAt = LocalDateTime.now();
+    }
 
     //------- Patient Relation---------
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)

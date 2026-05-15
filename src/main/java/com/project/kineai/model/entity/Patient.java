@@ -23,7 +23,7 @@ public class Patient {
     private UUID id ;
 
     //------- User Relation--------
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
     //-----------------------------
@@ -38,7 +38,7 @@ public class Patient {
     @Column(name = "age", nullable = false, columnDefinition = "INTEGER CHECK (age > 0)")
     private Integer age;
 
-    @Column(name = "phone", nullable = false, length = 20)
+    @Column(name = "phone", nullable = true, length = 20)
     private String phone;
 
     @Enumerated(EnumType.STRING)
@@ -51,7 +51,7 @@ public class Patient {
     private Level level =Level.DEBUTANT;
 
     //------- Kinesitherapeute Relation---------
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "kine_id", nullable = false)
     private Kinesitherapeute kine;
     //------------------------------------------

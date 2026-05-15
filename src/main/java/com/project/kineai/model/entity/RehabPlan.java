@@ -24,7 +24,7 @@ public class RehabPlan {
     private UUID id;
 
     //------- Patient Relation--------
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id", nullable = false)
     private Patient patient;
     //-----------------------------
@@ -32,11 +32,6 @@ public class RehabPlan {
     //------- PlanExercise relation--------
     @OneToMany(mappedBy = "rehabPlan", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PlanExercise> planExercises;
-
-    //------- Session relation ------------
-    @OneToMany(mappedBy = "rehabPlan")
-    private List<Session> sessions;
-    //-------------------------------------
 
     //------- Plan info--------
     @Column(name = "start_date",nullable = false)

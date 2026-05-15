@@ -22,7 +22,7 @@ public class Kinesitherapeute {
     private UUID id ;
 
     //------- User Relation--------
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
     //-----------------------------
@@ -47,7 +47,7 @@ public class Kinesitherapeute {
     }
 
     //------- Patient Relation--------
-    @OneToMany(mappedBy = "kine", orphanRemoval = true)
+    @OneToMany(mappedBy = "kine",fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Patient> patients;
     //-----------------------------
 

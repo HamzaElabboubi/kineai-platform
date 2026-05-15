@@ -12,7 +12,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Getter
 @Setter
-@Table(name = "sessions_metrics")
+@Table(name = "session_metrics")
 @Builder
 public class SessionMetrics {
 
