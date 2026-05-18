@@ -1,4 +1,4 @@
-package com.project.kineai.Repository;
+package com.project.kineai.repository;
 
 import com.project.kineai.model.entity.RehabPlan;
 import com.project.kineai.model.enums.Status;
@@ -10,5 +10,5 @@ import java.util.UUID;
 
 public interface RehabPlanRepository extends JpaRepository<RehabPlan, UUID> {
     Optional<RehabPlan> findByPatientIdAndStatus(UUID patientId, Status status);
-    List<RehabPlan> findByPatientIdOrderByCreatedAtDesc(UUID patientId);
+    List<RehabPlan> findByPatientIdOrderByStartDateDesc(UUID patientId);
 }

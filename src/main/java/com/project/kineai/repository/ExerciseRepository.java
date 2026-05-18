@@ -1,4 +1,4 @@
-package com.project.kineai.Repository;
+package com.project.kineai.repository;
 
 import com.project.kineai.model.entity.Exercise;
 import com.project.kineai.model.enums.Level;

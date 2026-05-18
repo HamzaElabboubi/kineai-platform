@@ -1,4 +1,4 @@
-package com.project.kineai.Repository;
+package com.project.kineai.repository;
 
 import com.project.kineai.model.entity.SessionMetrics;
 import org.springframework.data.jpa.repository.JpaRepository;

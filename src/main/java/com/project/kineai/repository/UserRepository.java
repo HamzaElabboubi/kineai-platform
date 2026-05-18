@@ -1,6 +1,6 @@
-package com.project.kineai.Repository;
+package com.project.kineai.repository;
 
-import com.project.kineai.model.entity.Patient;
+
 import com.project.kineai.model.entity.User;
 import com.project.kineai.model.enums.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
