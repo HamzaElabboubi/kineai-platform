@@ -1,0 +1,13 @@
+package com.project.kineai.mapper;
+
+import com.project.kineai.dto.response.KineResponse;
+import com.project.kineai.model.entity.Kinesitherapeute;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+
+@Mapper(componentModel = "spring")
+public interface KineMapper {
+    @Mapping(target = "patientCount",
+            expression = "java(kine.getPatients() != null ? kine.getPatients().size() : 0)")
+    KineResponse toResponse(Kinesitherapeute kine);
+}
