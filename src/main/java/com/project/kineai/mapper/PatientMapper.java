@@ -5,9 +5,13 @@ import com.project.kineai.model.entity.Patient;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface PatientMapper {
     @Mapping(source = "kine.id",       target = "kineId")
     @Mapping(source = "kine.fullName", target = "kineName")
     PatientResponse toResponse(Patient patient);
+
+    List<PatientResponse> toResponseList(List<Patient> patients);
 }
