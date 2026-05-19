@@ -10,6 +10,7 @@ import java.util.UUID;
 public class CreatePatientRequest {
     @Email(message = "Email doit être valide")
     @NotBlank(message = "L'email est obligatoire")
+    private String email;
     @NotBlank @Size(min = 8, message = "Mot de passe minimum 8 caractères")
     private String password;
     @NotBlank(message = "Le nom complet est obligatoire")

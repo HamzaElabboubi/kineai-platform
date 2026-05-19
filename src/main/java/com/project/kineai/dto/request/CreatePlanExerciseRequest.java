@@ -10,6 +10,7 @@ import lombok.Data;
 import java.util.UUID;
 
 @Data
+
 public class CreatePlanExerciseRequest {
 
     @NotNull(message = "L'exercice est obligatoire")
