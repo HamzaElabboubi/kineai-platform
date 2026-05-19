@@ -35,7 +35,7 @@ public class Patient {
     @Column(name = "full_name", nullable = false, length = 100)
     private String fullName;
 
-    @Column(name = "age", nullable = false, columnDefinition = "INTEGER CHECK (age > 0)")
+    @Column(name = "age", nullable = false, columnDefinition = "INTEGER CHECK (age > 0 AND age < 120)")
     private Integer age;
 
     @Column(name = "phone", nullable = true, length = 20)
