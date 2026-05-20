@@ -1,0 +1,5 @@
+# À ajouter dans application.yml
+jwt:
+  secret: ${JWT_SECRET:kineai-secret-key-pfe-2025-minimum-256-bits-required}
+  expiration: 3600000        # 1 heure en millisecondes
+  refresh-expiration: 604800000  # 7 jours en millisecondes
