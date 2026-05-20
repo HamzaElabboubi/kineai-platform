@@ -1,13 +1,19 @@
 package com.project.kineai.dto.response;
 
+<<<<<<< HEAD
 import lombok.Builder;
+=======
+>>>>>>> 2b65152 (Create dto And mapper)
 import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 @Data
+<<<<<<< HEAD
 @Builder
+=======
+>>>>>>> 2b65152 (Create dto And mapper)
 public class DashboardPatientResponse {
     private PatientResponse profile;
     private RehabPlanResponse activePlan;

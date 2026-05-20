@@ -3,8 +3,11 @@ package com.project.kineai.model.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import com.project.kineai.model.enums.SessionStatus;
+<<<<<<< HEAD
 import org.hibernate.annotations.Check;
 import org.hibernate.annotations.DialectOverride;
+=======
+>>>>>>> 2b65152 (Create dto And mapper)
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -18,7 +21,10 @@ import java.util.UUID;
 @Getter
 @Setter
 @Table(name = "sessions")
+<<<<<<< HEAD
 @Check(constraints = "score >= 0 AND score <= 100")
+=======
+>>>>>>> 2b65152 (Create dto And mapper)
 @Builder
 public class Session {
 
@@ -51,7 +57,11 @@ public class Session {
     @Column(name = "end_time",nullable = true)
     private LocalDateTime endTime;
 
+<<<<<<< HEAD
     @Column(name = "score", precision = 5, scale = 2)
+=======
+    @Column(name = "score",nullable = true,columnDefinition = "DECIMAL(5,2) CHECK (score>=0 AND score <=100 )    ")
+>>>>>>> 2b65152 (Create dto And mapper)
     private BigDecimal score;
 
     @Column(name = "reps_completed",nullable = false,columnDefinition = "INTEGER CHECK (reps_completed >= 0) ")

@@ -1,8 +1,11 @@
 package com.project.kineai.dto.response;
 
 import lombok.Data;
+<<<<<<< HEAD
 import lombok.Getter;
 import lombok.Setter;
+=======
+>>>>>>> 2b65152 (Create dto And mapper)
 
 import java.util.UUID;
 
