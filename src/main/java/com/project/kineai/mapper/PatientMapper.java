@@ -1,5 +1,6 @@
 package com.project.kineai.mapper;
 
+import com.project.kineai.dto.request.UpdatePatientRequest;
 import com.project.kineai.dto.response.PatientResponse;
 import com.project.kineai.model.entity.Patient;
 import org.mapstruct.Mapper;
@@ -14,4 +15,6 @@ public interface PatientMapper {
     PatientResponse toResponse(Patient patient);
 
     List<PatientResponse> toResponseList(List<Patient> patients);
+
+    void updateEntity(UpdatePatientRequest request, Patient patient);
 }
