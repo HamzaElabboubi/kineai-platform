@@ -1,7 +1,7 @@
-package com.project.kineai.services;
+package com.project.kineai.service;
 
 import com.project.kineai.dto.response.AlertResponse;
-
+import com.project.kineai.exception.BusinessException;
 import com.project.kineai.mapper.AlertMapper;
 import com.project.kineai.model.entity.*;
 import com.project.kineai.model.enums.AlertType;
@@ -58,7 +58,7 @@ public class AlertService {
     @Transactional
     public AlertResponse resolveAlert(UUID alertId) {
         Alert alert = alertRepository.findById(alertId)
-                .orElseThrow(() -> new RuntimeException("Alerte introuvable"));
+                .orElseThrow(() -> new BusinessException("Alerte introuvable"));
         alert.setResolved(true);
         return alertMapper.toResponse(alertRepository.save(alert));
     }

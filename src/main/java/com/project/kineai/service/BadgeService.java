@@ -5,7 +5,6 @@ import com.project.kineai.mapper.BadgeMapper;
 import com.project.kineai.model.entity.*;
 import com.project.kineai.model.enums.BadgeType;
 import com.project.kineai.repository.BadgeRepository;
-import com.project.kineai.services.PatientService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

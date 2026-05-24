@@ -1,4 +1,4 @@
-package com.project.kineai.services;
+package com.project.kineai.service;
 
 
 import com.project.kineai.dto.request.CreatePlanRequest;
@@ -34,7 +34,7 @@ public class RehabPlanService {
     @Transactional
     public RehabPlanResponse generatePlan(CreatePlanRequest request) {
         Patient patient = patientRepository.findById(request.getPatientId())
-                .orElseThrow(() -> new RuntimeException("Patient introuvable"));
+                .orElseThrow(() -> new BusinessException("Patient introuvable"));
 
         //  archiver plan actif existant
         planRepository.findByPatientIdAndStatus(patient.getId(), Status.ACTIVE)
@@ -72,7 +72,7 @@ public class RehabPlanService {
         if (avgScore == null) return;
 
         Patient patient = patientRepository.findById(patientId)
-                .orElseThrow(() -> new RuntimeException("Patient introuvable"));
+                .orElseThrow(() -> new BusinessException("Patient introuvable"));
 
         planRepository.findByPatientIdAndStatus(patientId, Status.ACTIVE)
                 .ifPresent(plan -> {
@@ -123,7 +123,7 @@ public class RehabPlanService {
     public RehabPlanResponse getActivePlan(UUID patientId) {
         return planMapper.toResponse(
                 planRepository.findByPatientIdAndStatus(patientId, Status.ACTIVE)
-                        .orElseThrow(() -> new RuntimeException("Aucun plan actif")));
+                        .orElseThrow(() -> new BusinessException("Aucun plan actif")));
     }
 
     public List<RehabPlanResponse> getAllPlans(UUID patientId) {
