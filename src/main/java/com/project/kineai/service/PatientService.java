@@ -2,6 +2,7 @@ package com.project.kineai.service;
 
 import com.project.kineai.dto.request.UpdatePatientRequest;
 import com.project.kineai.dto.response.PatientResponse;
+import com.project.kineai.exception.BusinessException;
 import com.project.kineai.mapper.PatientMapper;
 import com.project.kineai.model.entity.Patient;
 import com.project.kineai.model.entity.User;
@@ -24,7 +25,7 @@ public class PatientService {
     private final PatientMapper patientMapper;
 
     //------- Mon Profile -------------
-    public PatientResponse getMyProfile(Integer userId) {
+    public PatientResponse getMyProfile() {
         return patientMapper.toResponse(getCurrentPatient());
     }
 

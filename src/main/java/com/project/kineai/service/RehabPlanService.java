@@ -4,6 +4,7 @@ package com.project.kineai.service;
 import com.project.kineai.dto.request.CreatePlanRequest;
 import com.project.kineai.dto.response.RehabPlanResponse;
 import com.project.kineai.mapper.RehabPlanMapper;
+import com.project.kineai.exception.BusinessException;
 import com.project.kineai.model.entity.Patient;
 import com.project.kineai.model.entity.RehabPlan;
 import com.project.kineai.model.enums.Level;

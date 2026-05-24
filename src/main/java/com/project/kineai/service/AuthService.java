@@ -5,7 +5,7 @@ import com.project.kineai.dto.request.CreatePatientRequest;
 import com.project.kineai.dto.request.LoginRequest;
 import com.project.kineai.dto.response.AuthResponse;
 import com.project.kineai.mapper.UserMapper;
-//import com.project.kineai.exception.BusinessException;
+import com.project.kineai.exception.BusinessException;
 import com.project.kineai.model.entity.Kinesitherapeute;
 import com.project.kineai.model.entity.Patient;
 import com.project.kineai.model.entity.User;
@@ -36,7 +36,7 @@ public class AuthService {
     private final UserMapper userMapper;
 
     //-------Login-------------------
-    public AuthResponse Login(LoginRequest login){
+    public AuthResponse login(LoginRequest login){
         // 1. Vérifier credentials
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 login.getEmail(),

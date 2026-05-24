@@ -2,7 +2,7 @@ package com.project.kineai.service;
 
 import com.project.kineai.dto.request.*;
 import com.project.kineai.dto.response.SessionResponse;
-
+import com.project.kineai.exception.BusinessException;
 import com.project.kineai.mapper.*;
 import com.project.kineai.model.entity.*;
 import com.project.kineai.model.enums.SessionStatus;
