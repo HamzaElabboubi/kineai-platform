@@ -30,6 +30,7 @@ public class RehabPlanService {
     private final PatientRepository patientRepository;
     private final SessionRepository sessionRepository;
     private final RehabPlanMapper planMapper;
+    private final PatientService patientService;
 
     // ── Générer plan — Système Expert ─────────
     @Transactional
@@ -130,5 +131,10 @@ public class RehabPlanService {
     public List<RehabPlanResponse> getAllPlans(UUID patientId) {
         return planMapper.toResponseList(
                 planRepository.findByPatientIdOrderByStartDateDesc(patientId));
+    }
+
+    public RehabPlanResponse getActivePlanForCurrentPatient() {
+        Patient patient = patientService.getCurrentPatient();
+        return getActivePlan(patient.getId());
     }
 }
