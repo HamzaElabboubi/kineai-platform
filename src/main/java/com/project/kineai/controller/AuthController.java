@@ -4,7 +4,7 @@ import com.project.kineai.dto.request.CreateKineRequest;
 import com.project.kineai.dto.request.CreatePatientRequest;
 import com.project.kineai.dto.request.LoginRequest;
 import com.project.kineai.dto.response.AuthResponse;
-import com.project.kineai.services.AuthService;
+import com.project.kineai.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -27,7 +27,7 @@ public class AuthController {
             description = "Retourne JWT access + refresh token")
     public ResponseEntity<AuthResponse> login(
             @Valid @RequestBody LoginRequest request) {
-        return ResponseEntity.ok(authService.Login(request));
+        return ResponseEntity.ok(authService.login(request));
     }
 
     // ── Inscription Patient ───────────────────
