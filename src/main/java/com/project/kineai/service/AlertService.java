@@ -22,6 +22,7 @@ public class AlertService {
     private final AlertRepository alertRepository;
     private final AlertMapper alertMapper;
     private final PatientService patientService;
+    private final KineService kineService;;
 
     // ── Créer alerte ──────────────────────────
     @Transactional
@@ -48,8 +49,7 @@ public class AlertService {
 
     // ── Alertes du kiné connecté ──────────────
     public List<AlertResponse> getMyAlerts() {
-        Kinesitherapeute kine = patientService
-                .getCurrentUser().getKinesitherapeute();
+        Kinesitherapeute kine = kineService.getCurrentKine();
         return alertMapper.toResponseList(
                 alertRepository.findByKinesitherapeuteIdAndResolvedFalse(kine.getId()));
     }
@@ -65,8 +65,8 @@ public class AlertService {
 
     // ── Compter alertes en attente ────────────
     public long countPendingAlerts() {
-        Kinesitherapeute kine = patientService
-                .getCurrentUser().getKinesitherapeute();
+        Kinesitherapeute kine = kineService
+                .getCurrentKine();
         return alertRepository
                 .countByKinesitherapeuteIdAndResolvedFalse(kine.getId());
     }
