@@ -25,7 +25,7 @@ public class PatientService {
     private final PatientMapper patientMapper;
 
     //------- Mon Profile -------------
-    public PatientResponse getMyProfile(Integer userId) {
+    public PatientResponse getMyProfile() {
         return patientMapper.toResponse(getCurrentPatient());
     }
 
