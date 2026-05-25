@@ -2,7 +2,7 @@ package com.project.kineai.controller;
 
 import com.project.kineai.dto.request.UpdatePatientRequest;
 import com.project.kineai.dto.response.PatientResponse;
-import com.project.kineai.services.PatientService;
+import com.project.kineai.service.PatientService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
