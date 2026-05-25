@@ -1,11 +1,11 @@
-package com.project.kineai.services;
+package com.project.kineai.service;
 
 import com.project.kineai.dto.request.CreateKineRequest;
 import com.project.kineai.dto.request.CreatePatientRequest;
 import com.project.kineai.dto.request.LoginRequest;
 import com.project.kineai.dto.response.AuthResponse;
 import com.project.kineai.mapper.UserMapper;
-//import com.project.kineai.exception.BusinessException;
+import com.project.kineai.exception.BusinessException;
 import com.project.kineai.model.entity.Kinesitherapeute;
 import com.project.kineai.model.entity.Patient;
 import com.project.kineai.model.entity.User;
@@ -36,7 +36,7 @@ public class AuthService {
     private final UserMapper userMapper;
 
     //-------Login-------------------
-    public AuthResponse Login(LoginRequest login){
+    public AuthResponse login(LoginRequest login){
         // 1. Vérifier credentials
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 login.getEmail(),
@@ -45,7 +45,7 @@ public class AuthService {
         // 2. Charger utilisateur
         User user = userRepository
                 .findByEmailAndActiveTrue(login.getEmail())
-                .orElseThrow(() -> new RuntimeException("Compte inactif ou introuvable"));
+                .orElseThrow(() -> new BusinessException("Compte inactif ou introuvable"));
 
         // 3. Construire AuthResponse selon le role
         AuthResponse response = switch (user.getRole()) {
@@ -71,11 +71,11 @@ public class AuthService {
     public AuthResponse registerPatient(CreatePatientRequest request){
         // 1. Vérifier email unique
         if(userRepository.existsByEmail(request.getEmail())){
-            throw new RuntimeException("Email déjà utilisé");
+            throw new BusinessException("Email déjà utilisé");
         }
         // 2. Vérifier que le kiné existe
         Kinesitherapeute kinesitherapeute = kineRepository.findById(request.getKineId())
-                .orElseThrow(() -> new RuntimeException("Kinésithérapeute introuvable"));
+                .orElseThrow(() -> new BusinessException("Kinésithérapeute introuvable"));
 
         // 3. Créer User
         User user = User.builder()
@@ -106,7 +106,7 @@ public class AuthService {
         public AuthResponse registerKine(CreateKineRequest request) {
             // 1. Vérifier email unique
             if (userRepository.existsByEmail(request.getEmail())) {
-                throw new RuntimeException("Email déjà utilisé");
+                throw new BusinessException("Email déjà utilisé");
             }
 
             // 2. Créer User
@@ -132,12 +132,12 @@ public class AuthService {
     // ── Refresh Token ─────────────────────────
     public AuthResponse refresh(String refreshToken) {
         if (!jwtUtils.validateToken(refreshToken)) {
-            throw new RuntimeException("Refresh token invalide ou expiré");
+            throw new BusinessException("Refresh token invalide ou expiré");
         }
 
         String email = jwtUtils.getEmailFromToken(refreshToken);
         User user = userRepository.findByEmailAndActiveTrue(email)
-                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
+                .orElseThrow(() -> new BusinessException("Utilisateur introuvable"));
 
         return buildAuthResponse(user,
                 user.getPatient() != null

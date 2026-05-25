@@ -1,9 +1,10 @@
-package com.project.kineai.services;
+package com.project.kineai.service;
 
 
 import com.project.kineai.dto.request.CreatePlanRequest;
 import com.project.kineai.dto.response.RehabPlanResponse;
 import com.project.kineai.mapper.RehabPlanMapper;
+import com.project.kineai.exception.BusinessException;
 import com.project.kineai.model.entity.Patient;
 import com.project.kineai.model.entity.RehabPlan;
 import com.project.kineai.model.enums.Level;
@@ -29,12 +30,13 @@ public class RehabPlanService {
     private final PatientRepository patientRepository;
     private final SessionRepository sessionRepository;
     private final RehabPlanMapper planMapper;
+    private final PatientService patientService;
 
     // ── Générer plan — Système Expert ─────────
     @Transactional
     public RehabPlanResponse generatePlan(CreatePlanRequest request) {
         Patient patient = patientRepository.findById(request.getPatientId())
-                .orElseThrow(() -> new RuntimeException("Patient introuvable"));
+                .orElseThrow(() -> new BusinessException("Patient introuvable"));
 
         //  archiver plan actif existant
         planRepository.findByPatientIdAndStatus(patient.getId(), Status.ACTIVE)
@@ -72,7 +74,7 @@ public class RehabPlanService {
         if (avgScore == null) return;
 
         Patient patient = patientRepository.findById(patientId)
-                .orElseThrow(() -> new RuntimeException("Patient introuvable"));
+                .orElseThrow(() -> new BusinessException("Patient introuvable"));
 
         planRepository.findByPatientIdAndStatus(patientId, Status.ACTIVE)
                 .ifPresent(plan -> {
@@ -123,11 +125,16 @@ public class RehabPlanService {
     public RehabPlanResponse getActivePlan(UUID patientId) {
         return planMapper.toResponse(
                 planRepository.findByPatientIdAndStatus(patientId, Status.ACTIVE)
-                        .orElseThrow(() -> new RuntimeException("Aucun plan actif")));
+                        .orElseThrow(() -> new BusinessException("Aucun plan actif")));
     }
 
     public List<RehabPlanResponse> getAllPlans(UUID patientId) {
         return planMapper.toResponseList(
                 planRepository.findByPatientIdOrderByStartDateDesc(patientId));
+    }
+
+    public RehabPlanResponse getActivePlanForCurrentPatient() {
+        Patient patient = patientService.getCurrentPatient();
+        return getActivePlan(patient.getId());
     }
 }

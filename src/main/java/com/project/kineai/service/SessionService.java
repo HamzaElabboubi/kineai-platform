@@ -1,14 +1,12 @@
-package com.project.kineai.services;
+package com.project.kineai.service;
 
 import com.project.kineai.dto.request.*;
 import com.project.kineai.dto.response.SessionResponse;
-
+import com.project.kineai.exception.BusinessException;
 import com.project.kineai.mapper.*;
 import com.project.kineai.model.entity.*;
 import com.project.kineai.model.enums.SessionStatus;
 import com.project.kineai.repository.*;
-import com.project.kineai.services.PatientService;
-import com.project.kineai.services.RehabPlanService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -39,7 +37,7 @@ public class SessionService {
         Patient patient = patientService.getCurrentPatient();
 
         Exercise exercise = exerciseRepository.findById(request.getExerciseId())
-                .orElseThrow(() -> new RuntimeException("Exercice introuvable"));
+                .orElseThrow(() -> new BusinessException("Exercice introuvable"));
 
         RehabPlan plan = request.getPlanId() != null
                 ? planRepository.findById(request.getPlanId()).orElse(null)
@@ -134,6 +132,6 @@ public class SessionService {
 
     private Session getSessionOrThrow(UUID sessionId) {
         return sessionRepository.findById(sessionId)
-                .orElseThrow(() -> new RuntimeException("Séance introuvable"));
+                .orElseThrow(() -> new BusinessException("Séance introuvable"));
     }
 }

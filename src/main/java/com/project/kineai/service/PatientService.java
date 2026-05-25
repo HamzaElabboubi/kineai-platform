@@ -1,9 +1,9 @@
-package com.project.kineai.services;
+package com.project.kineai.service;
 
 import com.project.kineai.dto.request.UpdatePatientRequest;
 import com.project.kineai.dto.response.PatientResponse;
+import com.project.kineai.exception.BusinessException;
 import com.project.kineai.mapper.PatientMapper;
-import com.project.kineai.model.entity.Kinesitherapeute;
 import com.project.kineai.model.entity.Patient;
 import com.project.kineai.model.entity.User;
 import com.project.kineai.repository.PatientRepository;
@@ -40,7 +40,7 @@ public class PatientService {
     // ── Patient par ID ────────────────────────
     public PatientResponse getPatientById(UUID patientId) {
         Patient patient = patientRepository.findById(patientId)
-                .orElseThrow(()-> new RuntimeException("Patient introuvable"));
+                .orElseThrow(()-> new BusinessException("Patient introuvable"));
         return  patientMapper.toResponse(patient);
     }
 
@@ -56,7 +56,7 @@ public class PatientService {
     @Transactional
     public void archivePatient(UUID patientId) {
         Patient patient = patientRepository.findById(patientId)
-                .orElseThrow(() -> new RuntimeException("Patient introuvable"));
+                .orElseThrow(() -> new BusinessException("Patient introuvable"));
         patient.getUser().setActive(false);
         userRepository.save(patient.getUser());
     }
@@ -65,14 +65,14 @@ public class PatientService {
     public Patient getCurrentPatient() {
         User user = getCurrentUser();
         return patientRepository.findByUserId(user.getId())
-                .orElseThrow(() -> new RuntimeException("Profil patient introuvable"));
+                .orElseThrow(() -> new BusinessException("Profil patient introuvable"));
     }
 
     public User getCurrentUser() {
         String email = SecurityContextHolder.getContext()
                 .getAuthentication().getName();
         return userRepository.findByEmailAndActiveTrue(email)
-                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
+                .orElseThrow(() -> new BusinessException("Utilisateur introuvable"));
     }
 
     }
