@@ -1,7 +1,7 @@
 package com.project.kineai.dto.response;
 
+import com.project.kineai.model.enums.BodyZone;
 import com.project.kineai.model.enums.Level;
-import com.project.kineai.model.enums.Pathology;
 import lombok.Data;
 
 import java.util.UUID;
@@ -10,7 +10,7 @@ import java.util.UUID;
 public class ExerciseResponse {
     private UUID id;
     private String name;
-    private Pathology bodyZone;
+    private BodyZone bodyZone;
     private Integer targetAngle;
     private Integer toleranceDeg;
     private Integer repsTarget;
