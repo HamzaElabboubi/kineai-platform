@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.UUID;
 
 @Data
-public class CreatePlanExerciseRequest {
+public class PlanExerciseResponse {
     private UUID id;
     private UUID exerciseId;
     private String exerciseName;  // nom de l'exercice

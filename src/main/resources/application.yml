@@ -1,5 +1,36 @@
 # À ajouter dans application.yml
+# --
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop  # développement
+      show-sql: True
+
+
+# ── Base de données ─────────────────────────────
+datasource:
+  url: ${DB_URL:jdbc:postgresql://localhost:5432/kineai}
+  username: ${DB_USERNAME:kineai}
+  password: ${DB_PASSWORD:kineai123}
+  driver-class-name: org.postgresql.Driver
+# ── JWT ──────────────────────────────────────────
 jwt:
-  secret: ${JWT_SECRET:kineai-secret-key-pfe-2025-minimum-256-bits-required}
-  expiration: 3600000        # 1 heure en millisecondes
-  refresh-expiration: 604800000  # 7 jours en millisecondes
+  secret: ${JWT_SECRET:kineai-super-secret-key-pfe-2025-minimum-256-bits-required}
+  expiration: ${JWT_EXPIRATION:3600000}       # 1 heure en ms
+  refresh-expiration: ${JWT_REFRESH:604800000}
+
+  # ── Swagger ──────────────────────────────────────
+  springdoc:
+    api-docs:
+      path: /api-docs
+    swagger-ui:
+      path: /swagger-ui.html
+      tags-sorter: alpha
+
+# ── Serveur ──────────────────────────────────────
+      server:
+        port: ${SERVER_PORT:8080}
+        error:
+          include-message: always
+          include-binding-errors: always
+
