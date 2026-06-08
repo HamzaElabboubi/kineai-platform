@@ -109,6 +109,7 @@ public class SessionService {
     }
 
     // ── Historique ────────────────────────────
+    @Transactional(readOnly = true)
     public List<SessionResponse> getMySessionHistory() {
         Patient patient = patientService.getCurrentPatient();
         return sessionMapper.toResponseList(

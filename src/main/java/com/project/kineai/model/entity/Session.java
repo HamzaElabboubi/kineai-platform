@@ -3,6 +3,8 @@ package com.project.kineai.model.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import com.project.kineai.model.enums.SessionStatus;
+import org.hibernate.annotations.Check;
+import org.hibernate.annotations.DialectOverride;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -16,6 +18,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Table(name = "sessions")
+@Check(constraints = "score >= 0 AND score <= 100")
 @Builder
 public class Session {
 
@@ -48,7 +51,7 @@ public class Session {
     @Column(name = "end_time",nullable = true)
     private LocalDateTime endTime;
 
-    @Column(name = "score",nullable = true,columnDefinition = "DECIMAL(5,2) CHECK (score>=0 AND score <=100 )    ")
+    @Column(name = "score", precision = 5, scale = 2)
     private BigDecimal score;
 
     @Column(name = "reps_completed",nullable = false,columnDefinition = "INTEGER CHECK (reps_completed >= 0) ")

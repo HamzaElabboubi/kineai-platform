@@ -5,7 +5,7 @@ import com.project.kineai.model.enums.AlertType;
 import com.project.kineai.model.enums.SessionStatus;
 import com.project.kineai.repository.PatientRepository;
 import com.project.kineai.repository.SessionRepository;
-import com.project.kineai.services.AlertService;
+import com.project.kineai.service.AlertService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;

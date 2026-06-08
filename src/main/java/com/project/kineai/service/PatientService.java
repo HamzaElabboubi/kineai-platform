@@ -25,11 +25,13 @@ public class PatientService {
     private final PatientMapper patientMapper;
 
     //------- Mon Profile -------------
+    @Transactional(readOnly = true)
     public PatientResponse getMyProfile() {
         return patientMapper.toResponse(getCurrentPatient());
     }
 
     // ── Mes patients (kiné) ───────────────────
+    @Transactional(readOnly = true)
     public List<PatientResponse> getMyPatients() {
          User user = getCurrentUser();
         UUID kineId = user.getKinesitherapeute().getId();
@@ -38,6 +40,7 @@ public class PatientService {
     }
 
     // ── Patient par ID ────────────────────────
+    @Transactional(readOnly = true)
     public PatientResponse getPatientById(UUID patientId) {
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(()-> new BusinessException("Patient introuvable"));

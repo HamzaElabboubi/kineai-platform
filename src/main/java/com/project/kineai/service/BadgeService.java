@@ -59,6 +59,7 @@ public class BadgeService {
     }
 
     // ── Mes badges ────────────────────────────
+    @Transactional(readOnly = true)
     public List<BadgeResponse> getMyBadges() {
         Patient patient = patientService.getCurrentPatient();
         return badgeMapper.toResponseList(

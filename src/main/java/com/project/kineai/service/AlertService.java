@@ -48,6 +48,7 @@ public class AlertService {
     }
 
     // ── Alertes du kiné connecté ──────────────
+    @Transactional(readOnly = true)
     public List<AlertResponse> getMyAlerts() {
         Kinesitherapeute kine = kineService.getCurrentKine();
         return alertMapper.toResponseList(
@@ -64,6 +65,7 @@ public class AlertService {
     }
 
     // ── Compter alertes en attente ────────────
+    @Transactional(readOnly = true)
     public long countPendingAlerts() {
         Kinesitherapeute kine = kineService
                 .getCurrentKine();

@@ -10,6 +10,7 @@ import com.project.kineai.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -36,6 +37,7 @@ public class DashboardService {
     // ══════════════════════════════════════════
     // Dashboard Kiné
     // ══════════════════════════════════════════
+    @Transactional(readOnly = true)
     public DashboardKineResponse getKineDashboard() {
         Kinesitherapeute kine = kineService.getCurrentKine();
 
@@ -63,6 +65,7 @@ public class DashboardService {
     // ══════════════════════════════════════════
     // Dashboard Patient connecté
     // ══════════════════════════════════════════
+    @Transactional(readOnly = true)
     public DashboardPatientResponse getPatientDashboard() {
         Patient patient = patientService.getCurrentPatient();
         return buildPatientDashboard(patient);

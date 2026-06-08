@@ -2,6 +2,7 @@ package com.project.kineai.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Check;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -13,6 +14,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Table(name = "session_metrics")
+@Check(constraints = "conformity_pct >= 0 AND conformity_pct <= 100")
 @Builder
 public class SessionMetrics {
 
@@ -34,7 +36,7 @@ public class SessionMetrics {
     @Column(name = "joint_angles", nullable = false, columnDefinition = "TEXT")
     private String jointAngles;
 
-    @Column(name = "conformity_pct", nullable = false, columnDefinition = "DECIMAL(5,2) CHECK (conformity_pct >= 0 AND conformity_pct <= 100)")
+    @Column(name = "conformity_pct", precision = 5, scale = 2)
     private BigDecimal conformityPct;
 
     @Column(name = "reps_at_moment", nullable = false)

@@ -122,12 +122,14 @@ public class RehabPlanService {
     }
 
     // ── Getters ───────────────────────────────
+    @Transactional(readOnly = true)
     public RehabPlanResponse getActivePlan(UUID patientId) {
         return planMapper.toResponse(
                 planRepository.findByPatientIdAndStatus(patientId, Status.ACTIVE)
                         .orElseThrow(() -> new BusinessException("Aucun plan actif")));
     }
 
+    @Transactional(readOnly = true)
     public List<RehabPlanResponse> getAllPlans(UUID patientId) {
         return planMapper.toResponseList(
                 planRepository.findByPatientIdOrderByStartDateDesc(patientId));

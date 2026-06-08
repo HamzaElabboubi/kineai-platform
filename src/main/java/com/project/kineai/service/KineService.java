@@ -26,6 +26,7 @@ public class KineService {
     private final KineMapper kineMapper;
 
     // ── Mon profil (kiné connecté) ────────────
+    @Transactional(readOnly = true)
     public KineResponse getMyProfile() {
         return kineMapper.toResponse(getCurrentKine());
     }
@@ -33,6 +34,7 @@ public class KineService {
     // ── Liste kinés validés ───────────────────
     // Utilisé lors de l'inscription patient
     // pour afficher la liste déroulante des kinés
+    @Transactional(readOnly = true)
     public List<KineResponse> getAllValidated() {
         return kineMapper.toResponseList(
                 kineRepository.findByValidatedTrue());
