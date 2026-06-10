@@ -56,8 +56,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 log.debug("Utilisateur authentifié : {}", email);
             }
 
-            filterChain.doFilter(request, response);
         }
+            filterChain.doFilter(request, response);
     }
 
 

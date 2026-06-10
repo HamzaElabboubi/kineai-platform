@@ -29,13 +29,15 @@ jwt:
 springdoc:
   api-docs:
     path: /v3/api-docs
+    enabled: true        # ← ajouter
   swagger-ui:
     path: /swagger-ui.html
     enabled: true
     operationsSorter: method
     tagsSorter: alpha
+  packages-to-scan: com.project.kineai  # ← ajouter
   show-actuator: false
-  use-fqn: true
+  use-fqn: false
 
 
 # ── Server ──────────────────────────────────────
