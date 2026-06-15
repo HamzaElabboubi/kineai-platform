@@ -5,6 +5,8 @@ import com.project.kineai.dto.request.CreatePatientRequest;
 import com.project.kineai.dto.request.LoginRequest;
 import com.project.kineai.dto.response.AuthResponse;
 import com.project.kineai.exception.BusinessException;
+import com.project.kineai.mapper.UserMapper;
+import com.project.kineai.model.entity.Patient;
 import com.project.kineai.model.entity.User;
 import com.project.kineai.model.enums.Role;
 import com.project.kineai.repository.UserRepository;
@@ -37,6 +39,7 @@ class AuthServiceTest {
     @Mock private PasswordEncoder passwordEncoder;
     @Mock private AuthenticationManager authenticationManager;
     @Mock private JwtUtils jwtUtils;
+    @Mock private UserMapper userMapper;   // ← ajouter
 
     // ── Service à tester ──────────────────────
     @InjectMocks
@@ -56,22 +59,42 @@ class AuthServiceTest {
                 .password("password123")
                 .build();
 
+        // ✅ Patient associé au User
+        Patient patient = Patient.builder()
+                .id(UUID.randomUUID())
+                .fullName("Hamza Test")
+                .build();
+
+        // ✅ User avec patient associé
         User user = User.builder()
                 .id(UUID.randomUUID())
                 .email("patient@kineai.com")
                 .role(Role.PATIENT)
                 .active(true)
+                .patient(patient)      // ← clé du problème
                 .build();
 
+        AuthResponse mockResponse = AuthResponse.builder()
+                .accessToken("access_token")
+                .refreshToken("refresh_token")
+                .role("PATIENT")
+                .email("patient@kineai.com")
+                .fullName("Hamza Test")
+                .build();
+
+        when(authenticationManager.authenticate(any()))
+                .thenReturn(null);
         when(userRepository
                 .findByEmailAndActiveTrue(request.getEmail()))
                 .thenReturn(Optional.of(user));
 
-        // ✅ 2 arguments
+        // ✅ Patient non null — plus d'ambiguïté
+        when(userMapper.toAuthResponse(
+                any(User.class), any(Patient.class)))
+                .thenReturn(mockResponse);
         when(jwtUtils.generateAccessToken(
                 anyString(), anyString()))
                 .thenReturn("access_token");
-
         when(jwtUtils.generateRefreshToken(anyString()))
                 .thenReturn("refresh_token");
 
