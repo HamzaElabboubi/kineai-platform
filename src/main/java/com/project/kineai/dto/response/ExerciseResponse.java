@@ -10,9 +10,11 @@ import java.util.UUID;
 public class ExerciseResponse {
     private UUID id;
     private String name;
+    private String description;    // ← ajouter
     private BodyZone bodyZone;
     private Integer targetAngle;
     private Integer toleranceDeg;
+    private Integer recommendedDuration; // ← ajouter
     private Integer repsTarget;
     private Level difficultyLevel;
     private String mediapipeJoints;

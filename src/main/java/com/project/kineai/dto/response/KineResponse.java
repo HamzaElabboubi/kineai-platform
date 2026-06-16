@@ -13,4 +13,5 @@ public class KineResponse {
     private String speciality;
     private Boolean validated;
     private Integer patientCount;
+    private String email;        // ← ajouter si manquant
 }

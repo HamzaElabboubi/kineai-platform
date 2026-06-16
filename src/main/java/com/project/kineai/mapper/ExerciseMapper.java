@@ -13,8 +13,8 @@ public interface ExerciseMapper {
     // ── Entity → Response DTO ─────────────────
     // Tous les champs ont le même nom — MapStruct mappe automatiquement
     // sauf toleranceDeg qui diffère de toleranceDegree dans l'entité
-    @Mapping(source = "toleranceDegree", target = "toleranceDeg")
-    ExerciseResponse toResponse(Exercise exercise);
+        @Mapping(source = "toleranceDegree", target = "toleranceDeg")
+        ExerciseResponse toResponse(Exercise exercise);
 
     // ── List<Entity> → List<DTO> ──────────────
     List<ExerciseResponse> toResponseList(List<Exercise> exercises);

@@ -28,7 +28,6 @@ public class CreatePatientRequest {
     private String phone;
     @NotNull
     private Pathology pathology;
-    @NotNull
-    @NotBlank(message = "Le kinésithérapeute est obligatoire")
+    @NotNull(message = "Le kinésithérapeute est obligatoire")
     private UUID kineId;
 }

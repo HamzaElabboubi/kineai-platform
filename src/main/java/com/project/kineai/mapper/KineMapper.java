@@ -11,6 +11,7 @@ import java.util.List;
 public interface KineMapper {
     @Mapping(target = "patientCount",
             expression = "java(kine.getPatients() != null ? kine.getPatients().size() : 0)")
+    @Mapping(source = "user.email", target = "email")
     KineResponse toResponse(Kinesitherapeute kine);
 
     List<KineResponse> toResponseList(List<Kinesitherapeute> kines);
