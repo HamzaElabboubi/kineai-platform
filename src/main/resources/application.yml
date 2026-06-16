@@ -6,7 +6,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/kineai
     username: postgres
-    password: hamza2002
+    password: 2002
     driver-class-name: org.postgresql.Driver
 
   # ── JPA / Hibernate ─────────────────────────

@@ -40,23 +40,7 @@ public class KineService {
                 kineRepository.findByValidatedTrue());
     }
 
-    // ── Valider un kiné (admin) — RG-38 ───────
-    @Transactional
-    public KineResponse validateKine(UUID kineId) {
-        Kinesitherapeute kine = kineRepository
-                .findById(kineId)
-                .orElseThrow(() -> new BusinessException(
-                        "Kinésithérapeute introuvable"));
 
-        if (kine.getValidated()) {
-            throw new BusinessException(
-                    "Ce kinésithérapeute est déjà validé");
-        }
-
-        kine.setValidated(true);
-        log.info("Kiné validé par admin : {}", kine.getFullName());
-        return kineMapper.toResponse(kineRepository.save(kine));
-    }
 
     // ── Helpers ───────────────────────────────
     public Kinesitherapeute getCurrentKine() {
@@ -72,5 +56,42 @@ public class KineService {
         return userRepository.findByEmailAndActiveTrue(email)
                 .orElseThrow(() -> new BusinessException(
                         "Utilisateur introuvable"));
+    }
+    // ── Kinés en attente de validation ────────────
+    @Transactional(readOnly = true)
+    public List<KineResponse> getPendingKines() {
+        return kineMapper.toResponseList(
+                kineRepository.findByValidatedFalse());
+    }
+    // ── Valider un kiné (RG-38) ───────────────────
+    @Transactional
+    public KineResponse validateKine(UUID kineId) {
+        Kinesitherapeute kine = kineRepository
+                .findById(kineId)
+                .orElseThrow(() ->
+                        new BusinessException("Kiné introuvable"));
+
+        // Activer le compte User associé
+        kine.setValidated(true);
+        kine.getUser().setActive(true);
+        userRepository.save(kine.getUser());
+
+        kineRepository.save(kine);
+        log.info("Kiné validé : {}", kine.getFullName());
+        return kineMapper.toResponse(kine);
+    }
+    // ── Rejeter un kiné ───────────────────────────
+    @Transactional
+    public void rejectKine(UUID kineId) {
+        Kinesitherapeute kine = kineRepository
+                .findById(kineId)
+                .orElseThrow(() ->
+                        new BusinessException("Kiné introuvable"));
+
+        // Désactiver définitivement
+        kine.getUser().setActive(false);
+        userRepository.save(kine.getUser());
+        kineRepository.save(kine);
+        log.info("Kiné rejeté : {}", kine.getFullName());
     }
 }

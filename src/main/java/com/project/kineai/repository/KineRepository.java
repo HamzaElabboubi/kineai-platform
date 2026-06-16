@@ -10,4 +10,6 @@ import java.util.UUID;
 public interface KineRepository extends JpaRepository<Kinesitherapeute, UUID> {
     Optional<Kinesitherapeute> findByUserId(UUID userId);
     List<Kinesitherapeute> findByValidatedTrue();
+
+    List<Kinesitherapeute> findByValidatedFalse();
 }
