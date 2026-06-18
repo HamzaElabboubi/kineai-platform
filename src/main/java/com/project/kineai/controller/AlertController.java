@@ -15,35 +15,35 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/alerts")
 @RequiredArgsConstructor
-@Tag(name = "Alertes", description = "Alertes automatiques kinésithérapeute")
+@Tag(name = "Alertes", description = "Gestion des alertes kiné")
 public class AlertController {
 
     private final AlertService alertService;
 
-    // ── Alertes non résolues du kiné ──────────
-    @GetMapping("/kine")
+    // ── Mes alertes en attente (kiné connecté) ─
+    @GetMapping("/my")
     @PreAuthorize("hasRole('KINE')")
-    @Operation(summary = "Alertes en attente du kiné connecté",
-            description = "Alertes INACTIVITY et SCORE non résolues")
+    @Operation(summary = "Alertes non résolues du kiné connecté")
     public ResponseEntity<List<AlertResponse>> getMyAlerts() {
         return ResponseEntity.ok(alertService.getMyAlerts());
     }
 
-    // ── Résoudre une alerte ───────────────────
+    // ── Résoudre une alerte ────────────────────
     @PutMapping("/{alertId}/resolve")
     @PreAuthorize("hasRole('KINE')")
-    @Operation(summary = "Marquer une alerte comme résolue (RG-26)")
+    @Operation(summary = "Marquer une alerte comme résolue")
     public ResponseEntity<AlertResponse> resolveAlert(
             @PathVariable UUID alertId) {
-        return ResponseEntity.ok(alertService.resolveAlert(alertId));
+        return ResponseEntity.ok(
+                alertService.resolveAlert(alertId));
     }
 
-    // ── Compter alertes en attente ────────────
-    @GetMapping("/kine/count")
+    // ── Compteur alertes en attente ────────────
+    @GetMapping("/pending/count")
     @PreAuthorize("hasRole('KINE')")
-    @Operation(summary = "Nombre d'alertes non résolues",
-            description = "Utilisé pour afficher le badge compteur dans le dashboard")
+    @Operation(summary = "Nombre d'alertes en attente")
     public ResponseEntity<Long> countPendingAlerts() {
-        return ResponseEntity.ok(alertService.countPendingAlerts());
+        return ResponseEntity.ok(
+                alertService.countPendingAlerts());
     }
 }

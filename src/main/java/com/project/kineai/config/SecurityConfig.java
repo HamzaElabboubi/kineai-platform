@@ -43,6 +43,7 @@ public class SecurityConfig {
             "/v3/api-docs/**",
             "/v3/api-docs",
             "/webjars/**",
+            "/admin/**",
 
             // ── Autres ──────────────────────────────
             "/api-docs/**",

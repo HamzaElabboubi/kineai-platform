@@ -12,4 +12,8 @@ public interface KineRepository extends JpaRepository<Kinesitherapeute, UUID> {
     List<Kinesitherapeute> findByValidatedTrue();
 
     List<Kinesitherapeute> findByValidatedFalse();
+    // KineRepository.java — si pas déjà présentes
+    long countByValidatedTrue();
+    long countByValidatedFalse();
+    List<Kinesitherapeute> findAll(); // déjà fourni
 }
