@@ -10,6 +10,6 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ExerciseRepository extends JpaRepository<Exercise, UUID> {
-    List<Exercise> findByBodyZoneAndDifficultyLevel(Pathology pathology, Level level);
+    List<Exercise> findByBodyZoneAndDifficultyLevel(BodyZone bodyZone, Level level);
     List<Exercise> findByBodyZone(BodyZone bodyZone);
 }

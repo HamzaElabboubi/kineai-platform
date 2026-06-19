@@ -3,16 +3,21 @@ package com.project.kineai.service;
 import com.project.kineai.dto.response.ExerciseResponse;
 import com.project.kineai.mapper.ExerciseMapper;
 import com.project.kineai.model.entity.Patient;
-import com.project.kineai.model.enums.BodyZone;
+import com.project.kineai.model.entity.PlanExercise;
+import com.project.kineai.model.entity.RehabPlan;
+import com.project.kineai.model.enums.Status;
 import com.project.kineai.repository.ExerciseRepository;
 import com.project.kineai.repository.PatientRepository;
+
+import com.project.kineai.repository.PlanExerciseRepository;
+import com.project.kineai.repository.RehabPlanRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,9 +25,10 @@ public class ExerciseService {
 
     private final ExerciseRepository exerciseRepository;
     private final PatientRepository patientRepository;
+    private final RehabPlanRepository rehabPlanRepository;
+    private final PlanExerciseRepository planExerciseRepository;
     private final ExerciseMapper exerciseMapper;
 
-    // ── Tous les exercices (admin/kiné) ───────
     @Transactional(readOnly = true)
     public List<ExerciseResponse> getAllExercises() {
         return exerciseRepository.findAll()
@@ -31,9 +37,7 @@ public class ExerciseService {
                 .toList();
     }
 
-    // ── Exercices adaptés au patient connecté ─
-    // Filtre automatique par pathologie + niveau
-    // C'est le SYSTÈME EXPERT qui filtre, pas le kiné
+    // ✅ Corrigé — exercices du PLAN ACTIF, pas du profil
     @Transactional(readOnly = true)
     public List<ExerciseResponse> getMyExercises() {
         String email = SecurityContextHolder
@@ -43,24 +47,36 @@ public class ExerciseService {
 
         Patient patient = patientRepository
                 .findByUser_Email(email)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Patient introuvable"));
+                .orElseThrow(() -> new RuntimeException(
+                        "Patient introuvable"));
 
-        // Filtre automatique — pathologie ET niveau
-        return exerciseRepository
-                .findByBodyZoneAndDifficultyLevel(
-                        patient.getPathology(),
-                        patient.getLevel())
-                .stream()
+        RehabPlan activePlan = rehabPlanRepository
+                .findByPatientIdAndStatus(
+                        patient.getId(), Status.ACTIVE)
+                .orElseThrow(() -> new RuntimeException(
+                        "Aucun plan actif. Contactez"
+                                + " votre kinésithérapeute."));
+
+        List<PlanExercise> planExercises =
+                planExerciseRepository
+                        .findByRehabPlanIdAndWeekNumber(
+                                activePlan.getId(),
+                                activePlan.getCurrentWeek());
+
+        // Dédupliquer — un exercice peut apparaître
+        // plusieurs fois (plusieurs jours) dans la
+        // même semaine, on ne veut le proposer qu'une
+        // fois dans la liste de sélection patient
+        return planExercises.stream()
+                .map(PlanExercise::getExercise)
+                .distinct()
                 .map(exerciseMapper::toResponse)
-                .toList();
+                .collect(Collectors.toList());
     }
 
-    // ── Exercices par zone corporelle ─────────
     @Transactional(readOnly = true)
     public List<ExerciseResponse> getByBodyZone(
-            BodyZone bodyZone) {
+            com.project.kineai.model.enums.BodyZone bodyZone) {
         return exerciseRepository
                 .findByBodyZone(bodyZone)
                 .stream()

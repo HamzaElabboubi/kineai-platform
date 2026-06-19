@@ -17,7 +17,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +35,18 @@ public class AdminService {
     // ── Statistiques globales ─────────────────
     @Transactional(readOnly = true)
     public AdminStatsResponse getStats() {
+        List<Patient> allPatients = patientRepository.findAll();
+
+        Map<String, Long> byLevel = allPatients.stream()
+                .collect(Collectors.groupingBy(
+                        p -> p.getLevel().name(),
+                        Collectors.counting()));
+
+        Map<String, Long> byPathology = allPatients.stream()
+                .collect(Collectors.groupingBy(
+                        p -> p.getPathology().name(),
+                        Collectors.counting()));
+
         return AdminStatsResponse.builder()
                 .totalPatients(patientRepository.count())
                 .totalKines(kineRepository.count())
@@ -40,6 +54,8 @@ public class AdminService {
                         kineRepository.countByValidatedTrue())
                 .pendingKines(
                         kineRepository.countByValidatedFalse())
+                .patientsByLevel(byLevel)
+                .patientsByPathology(byPathology)
                 .build();
     }
 
@@ -105,6 +121,39 @@ public class AdminService {
         userRepository.save(patient.getUser());
         log.info("Patient réactivé : {}",
                 patient.getFullName());
+        return patientMapper.toResponse(patient);
+    }
+
+
+    // ── Réaffecter un patient à un autre kiné ─
+    @Transactional
+    public PatientResponse reassignKine(
+            UUID patientId, UUID newKineId) {
+
+        Patient patient = patientRepository
+                .findById(patientId)
+                .orElseThrow(() -> new BusinessException(
+                        "Patient introuvable"));
+
+        Kinesitherapeute newKine = kineRepository
+                .findById(newKineId)
+                .orElseThrow(() -> new BusinessException(
+                        "Kinésithérapeute introuvable"));
+
+        if (!newKine.getValidated()) {
+            throw new BusinessException(
+                    "Impossible d'assigner un patient à un"
+                            + " kiné non validé.");
+        }
+
+        String oldKineName = patient.getKine().getFullName();
+        patient.setKine(newKine);
+        patientRepository.save(patient);
+
+        log.info("Patient {} réaffecté de Dr. {} vers Dr. {}",
+                patient.getFullName(), oldKineName,
+                newKine.getFullName());
+
         return patientMapper.toResponse(patient);
     }
 }

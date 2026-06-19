@@ -1,4 +1,4 @@
-package com.project.kineai.Repository;
+package com.project.kineai.repository;
 
 import com.project.kineai.model.entity.PlanExercise;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,4 +19,6 @@ public interface PlanExerciseRepository
             UUID rehabPlanId, UUID exerciseId,
             Integer weekNumber,
             com.project.kineai.model.enums.SessionDay dayOfWeek);
+
+
 }

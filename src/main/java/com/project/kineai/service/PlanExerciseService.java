@@ -1,6 +1,6 @@
 package com.project.kineai.service;
 
-import com.project.kineai.Repository.PlanExerciseRepository;
+import com.project.kineai.repository.PlanExerciseRepository;
 import com.project.kineai.dto.request.AssignExerciseRequest;
 import com.project.kineai.dto.response.PlanExerciseResponse;
 import com.project.kineai.mapper.PlanExerciseMapper;

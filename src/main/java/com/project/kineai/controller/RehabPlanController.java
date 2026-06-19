@@ -36,7 +36,7 @@ public class RehabPlanController {
     }
 
     // ── Plan actif du patient connecté ────────
-    @GetMapping("/my/active")
+        @GetMapping("/my/active")
     @PreAuthorize("hasRole('PATIENT')")
     @Operation(summary = "Plan actif du patient connecté")
     public ResponseEntity<RehabPlanResponse> getMyActivePlan() {

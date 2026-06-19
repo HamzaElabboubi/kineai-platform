@@ -106,4 +106,15 @@ public class AdminController {
         return ResponseEntity.ok(
                 adminService.reactivatePatient(id));
     }
+
+    // ── Réaffecter un patient à un autre kiné ─
+    @PutMapping("/patients/{patientId}/reassign")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Réaffecter un patient à un autre kiné")
+    public ResponseEntity<PatientResponse> reassignKine(
+            @PathVariable UUID patientId,
+            @RequestParam UUID newKineId) {
+        return ResponseEntity.ok(
+                adminService.reassignKine(patientId, newKineId));
+    }
 }
