@@ -23,15 +23,6 @@ public class PlanExerciseController {
 
     private final PlanExerciseService planExerciseService;
 
-    // ── Assigner un exercice ───────────────────
-    @PostMapping
-    @PreAuthorize("hasRole('KINE')")
-    @Operation(summary = "Assigner un exercice au plan d'un patient")
-    public ResponseEntity<PlanExerciseResponse> assign(
-            @Valid @RequestBody AssignExerciseRequest request) {
-        return ResponseEntity.ok(
-                planExerciseService.assignExercise(request));
-    }
 
     // ── Liste complète des exercices du plan ──
     @GetMapping("/plan/{planId}")

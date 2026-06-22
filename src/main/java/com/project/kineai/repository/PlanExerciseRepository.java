@@ -1,6 +1,7 @@
 package com.project.kineai.repository;
 
 import com.project.kineai.model.entity.PlanExercise;
+import com.project.kineai.model.enums.SessionDay;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -14,6 +15,11 @@ public interface PlanExerciseRepository
 
     List<PlanExercise> findByRehabPlanIdAndWeekNumber(
             UUID rehabPlanId, Integer weekNumber);
+
+    List<PlanExercise> findByRehabPlanIdAndWeekNumberAndDayOfWeek(
+            UUID rehabPlanId, Integer weekNumber,
+            SessionDay dayOfWeek);
+
 
     boolean existsByRehabPlanIdAndExerciseIdAndWeekNumberAndDayOfWeek(
             UUID rehabPlanId, UUID exerciseId,

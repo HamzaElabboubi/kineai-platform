@@ -20,6 +20,11 @@ public interface SessionRepository extends JpaRepository<Session, UUID> {
     List<Session> findByPatientIdAndStartTimeAfterAndSessionStatus(
             UUID patientId, LocalDateTime date, SessionStatus status);
 
+    long countByRehabPlanIdAndSessionStatusAndStartTimeBetween(
+            UUID rehabPlanId, SessionStatus status,
+            LocalDateTime start, LocalDateTime end);
+
+
     // ✅ @Query native pour AVG sur 3 dernières séances
     @Query(value = """
         SELECT AVG(score) FROM (
