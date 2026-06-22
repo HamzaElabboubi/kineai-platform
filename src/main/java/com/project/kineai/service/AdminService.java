@@ -47,6 +47,13 @@ public class AdminService {
                         p -> p.getPathology().name(),
                         Collectors.counting()));
 
+        // ✅ Kinés par spécialité
+        Map<String, Long> bySpeciality =
+                kineRepository.findAll().stream()
+                        .collect(Collectors.groupingBy(
+                                Kinesitherapeute::getSpeciality,
+                                Collectors.counting()));
+
         return AdminStatsResponse.builder()
                 .totalPatients(patientRepository.count())
                 .totalKines(kineRepository.count())
@@ -56,6 +63,7 @@ public class AdminService {
                         kineRepository.countByValidatedFalse())
                 .patientsByLevel(byLevel)
                 .patientsByPathology(byPathology)
+                .kinesBySpeciality(bySpeciality)
                 .build();
     }
 

@@ -46,4 +46,15 @@ public class AlertController {
         return ResponseEntity.ok(
                 alertService.countPendingAlerts());
     }
+
+    // ── Mes alertes (patient connecté) ────────
+    @GetMapping("/my-patient")
+    @PreAuthorize("hasRole('PATIENT')")
+    @Operation(summary = "Alertes du patient connecté"
+            + " (résolues et non résolues)")
+    public ResponseEntity<List<AlertResponse>>
+    getMyAlertsAsPatient() {
+        return ResponseEntity.ok(
+                alertService.getMyAlertsAsPatient());
+    }
 }

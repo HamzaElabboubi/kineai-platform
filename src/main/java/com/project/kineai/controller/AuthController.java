@@ -27,7 +27,7 @@ public class AuthController {
             description = "Retourne JWT access + refresh token")
     public ResponseEntity<AuthResponse> login(
             @Valid @RequestBody LoginRequest request) {
-        return ResponseEntity.ok(authService.login(request));
+        return ResponseEntity.ok(authService.Login(request));
     }
 
     // ── Inscription Patient ───────────────────

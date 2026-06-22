@@ -28,7 +28,7 @@ public class DataInitializer implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
         createAdminIfNotExists();
-        createExercisesIfNotExist();
+        initExercises();
     }
 
     private void createAdminIfNotExists() {
@@ -50,86 +50,231 @@ public class DataInitializer implements ApplicationRunner {
         log.info("✅ Compte admin créé — admin@kineai.com");
     }
 
-    private void createExercisesIfNotExist() {
+    private void initExercises() {
         if (exerciseRepository.count() > 0) {
-            log.info("Exercices déjà présents");
+            log.info("Exercices déjà présents — initialisation ignorée");
             return;
         }
 
         List<Exercise> exercises = List.of(
+
+                // ═══════════ GENOU ═══════════
                 Exercise.builder()
-                        .name("Flexion genou")
-                        .description("Fléchissez le genou jusqu'à 90°"
-                                + " en position assise")
+                        .name("Flexion genou — initiation")
+                        .description("Pliez doucement le genou vers"
+                                + " l'arrière, sans forcer, jusqu'à"
+                                + " ressentir une légère tension.")
                         .bodyZone(BodyZone.GENOU)
-                        .targetAngle(90)
-                        .toleranceDegree(15)
-                        .repsTarget(10)
-                        .recommendedDuration(30)
+                        .targetAngle(110)
+                        .toleranceDegree(20)
+                        .recommendedDuration(20)
+                        .repsTarget(8)
                         .difficultyLevel(Level.DEBUTANT)
-                        .mediapipeJoints(
-                                "LEFT_HIP,LEFT_KNEE,LEFT_ANKLE")
+                        .mediapipeJoints("LEFT_HIP,LEFT_KNEE,LEFT_ANKLE")
                         .build(),
 
                 Exercise.builder()
-                        .name("Extension genou")
-                        .description("Étendez le genou jusqu'à"
-                                + " la position droite")
+                        .name("Flexion genou — renforcement")
+                        .description("Pliez le genou à 90° en"
+                                + " contrôlant la descente et la montée.")
+                        .bodyZone(BodyZone.GENOU)
+                        .targetAngle(90)
+                        .toleranceDegree(15)
+                        .recommendedDuration(25)
+                        .repsTarget(12)
+                        .difficultyLevel(Level.INTERMEDIAIRE)
+                        .mediapipeJoints("LEFT_HIP,LEFT_KNEE,LEFT_ANKLE")
+                        .build(),
+
+                Exercise.builder()
+                        .name("Extension genou complète")
+                        .description("Étendez complètement la jambe"
+                                + " puis revenez à la position de"
+                                + " départ avec contrôle musculaire.")
                         .bodyZone(BodyZone.GENOU)
                         .targetAngle(170)
                         .toleranceDegree(10)
-                        .repsTarget(12)
                         .recommendedDuration(30)
-                        .difficultyLevel(Level.INTERMEDIAIRE)
-                        .mediapipeJoints(
-                                "LEFT_HIP,LEFT_KNEE,LEFT_ANKLE")
+                        .repsTarget(15)
+                        .difficultyLevel(Level.AVANCE)
+                        .mediapipeJoints("LEFT_HIP,LEFT_KNEE,LEFT_ANKLE")
+                        .build(),
+
+                // ═══════════ EPAULE ═══════════
+                Exercise.builder()
+                        .name("Élévation épaule — légère")
+                        .description("Levez doucement le bras devant"
+                                + " vous jusqu'à hauteur d'épaule,"
+                                + " sans douleur.")
+                        .bodyZone(BodyZone.EPAULE)
+                        .targetAngle(60)
+                        .toleranceDegree(20)
+                        .recommendedDuration(20)
+                        .repsTarget(8)
+                        .difficultyLevel(Level.DEBUTANT)
+                        .mediapipeJoints("LEFT_SHOULDER,LEFT_ELBOW,LEFT_WRIST")
                         .build(),
 
                 Exercise.builder()
-                        .name("Élévation épaule")
+                        .name("Élévation épaule — 90°")
                         .description("Élevez le bras latéralement"
-                                + " jusqu'à 90°")
+                                + " jusqu'à 90°, maintenez puis"
+                                + " redescendez lentement.")
                         .bodyZone(BodyZone.EPAULE)
                         .targetAngle(90)
                         .toleranceDegree(15)
-                        .repsTarget(10)
                         .recommendedDuration(25)
-                        .difficultyLevel(Level.DEBUTANT)
-                        .mediapipeJoints(
-                                "LEFT_SHOULDER,LEFT_ELBOW,LEFT_WRIST")
-                        .build(),
-
-                Exercise.builder()
-                        .name("Rotation épaule")
-                        .description("Effectuez une rotation"
-                                + " externe de l'épaule à 45°")
-                        .bodyZone(BodyZone.EPAULE)
-                        .targetAngle(45)
-                        .toleranceDegree(10)
-                        .repsTarget(8)
-                        .recommendedDuration(20)
+                        .repsTarget(10)
                         .difficultyLevel(Level.INTERMEDIAIRE)
-                        .mediapipeJoints(
-                                "LEFT_SHOULDER,LEFT_ELBOW,LEFT_WRIST")
+                        .mediapipeJoints("LEFT_SHOULDER,LEFT_ELBOW,LEFT_WRIST")
                         .build(),
 
                 Exercise.builder()
-                        .name("Extension dos")
-                        .description("Redressez le dos en position"
-                                + " debout jusqu'à 160°")
+                        .name("Rotation épaule complète")
+                        .description("Effectuez une élévation complète"
+                                + " du bras au-dessus de la tête avec"
+                                + " contrôle de la trajectoire.")
+                        .bodyZone(BodyZone.EPAULE)
+                        .targetAngle(150)
+                        .toleranceDegree(12)
+                        .recommendedDuration(30)
+                        .repsTarget(14)
+                        .difficultyLevel(Level.AVANCE)
+                        .mediapipeJoints("LEFT_SHOULDER,LEFT_ELBOW,LEFT_WRIST")
+                        .build(),
+
+                // ═══════════ DOS ═══════════
+                Exercise.builder()
+                        .name("Redressement dos — doux")
+                        .description("Redressez progressivement le"
+                                + " haut du dos en gardant les"
+                                + " abdominaux contractés.")
+                        .bodyZone(BodyZone.DOS)
+                        .targetAngle(100)
+                        .toleranceDegree(20)
+                        .recommendedDuration(20)
+                        .repsTarget(8)
+                        .difficultyLevel(Level.DEBUTANT)
+                        .mediapipeJoints("LEFT_SHOULDER,LEFT_HIP,LEFT_KNEE")
+                        .build(),
+
+                Exercise.builder()
+                        .name("Extension dos — intermédiaire")
+                        .description("Redressez le dos jusqu'à la"
+                                + " position verticale, maintenez"
+                                + " 2 secondes.")
                         .bodyZone(BodyZone.DOS)
                         .targetAngle(160)
                         .toleranceDegree(15)
+                        .recommendedDuration(25)
                         .repsTarget(10)
-                        .recommendedDuration(30)
+                        .difficultyLevel(Level.INTERMEDIAIRE)
+                        .mediapipeJoints("LEFT_SHOULDER,LEFT_HIP,LEFT_KNEE")
+                        .build(),
+
+                Exercise.builder()
+                        .name("Gainage dorsal dynamique")
+                        .description("Alternez redressement complet"
+                                + " et flexion contrôlée du dos avec"
+                                + " rythme soutenu.")
+                        .bodyZone(BodyZone.DOS)
+                        .targetAngle(170)
+                        .toleranceDegree(10)
+                        .recommendedDuration(35)
+                        .repsTarget(15)
+                        .difficultyLevel(Level.AVANCE)
+                        .mediapipeJoints("LEFT_SHOULDER,LEFT_HIP,LEFT_KNEE")
+                        .build(),
+
+                // ═══════════ HANCHE ═══════════
+                Exercise.builder()
+                        .name("Mobilisation hanche — douce")
+                        .description("Levez doucement le genou vers"
+                                + " l'avant en gardant le dos droit,"
+                                + " sans déséquilibre.")
+                        .bodyZone(BodyZone.HANCHE)
+                        .targetAngle(100)
+                        .toleranceDegree(20)
+                        .recommendedDuration(20)
+                        .repsTarget(8)
                         .difficultyLevel(Level.DEBUTANT)
-                        .mediapipeJoints(
-                                "LEFT_HIP,LEFT_SHOULDER,LEFT_EAR")
+                        .mediapipeJoints("LEFT_SHOULDER,LEFT_HIP,LEFT_KNEE")
+                        .build(),
+
+                Exercise.builder()
+                        .name("Flexion hanche — contrôlée")
+                        .description("Levez le genou à hauteur de la"
+                                + " hanche, maintenez l'équilibre"
+                                + " puis redescendez lentement.")
+                        .bodyZone(BodyZone.HANCHE)
+                        .targetAngle(90)
+                        .toleranceDegree(15)
+                        .recommendedDuration(25)
+                        .repsTarget(12)
+                        .difficultyLevel(Level.INTERMEDIAIRE)
+                        .mediapipeJoints("LEFT_SHOULDER,LEFT_HIP,LEFT_KNEE")
+                        .build(),
+
+                Exercise.builder()
+                        .name("Fente avant contrôlée")
+                        .description("Réalisez une fente avant en"
+                                + " gardant l'alignement du genou et"
+                                + " de la hanche.")
+                        .bodyZone(BodyZone.HANCHE)
+                        .targetAngle(120)
+                        .toleranceDegree(12)
+                        .recommendedDuration(30)
+                        .repsTarget(14)
+                        .difficultyLevel(Level.AVANCE)
+                        .mediapipeJoints("LEFT_SHOULDER,LEFT_HIP,LEFT_KNEE")
+                        .build(),
+
+                // ═══════════ COUDE ═══════════
+                Exercise.builder()
+                        .name("Flexion coude — légère")
+                        .description("Pliez doucement le coude vers"
+                                + " l'épaule, sans à-coups, en"
+                                + " contrôlant le mouvement.")
+                        .bodyZone(BodyZone.COUDE)
+                        .targetAngle(90)
+                        .toleranceDegree(20)
+                        .recommendedDuration(20)
+                        .repsTarget(10)
+                        .difficultyLevel(Level.DEBUTANT)
+                        .mediapipeJoints("LEFT_SHOULDER,LEFT_ELBOW,LEFT_WRIST")
+                        .build(),
+
+                Exercise.builder()
+                        .name("Flexion-extension coude")
+                        .description("Alternez flexion complète et"
+                                + " extension du coude avec un"
+                                + " rythme régulier.")
+                        .bodyZone(BodyZone.COUDE)
+                        .targetAngle(60)
+                        .toleranceDegree(15)
+                        .recommendedDuration(25)
+                        .repsTarget(12)
+                        .difficultyLevel(Level.INTERMEDIAIRE)
+                        .mediapipeJoints("LEFT_SHOULDER,LEFT_ELBOW,LEFT_WRIST")
+                        .build(),
+
+                Exercise.builder()
+                        .name("Extension coude résistance")
+                        .description("Étendez complètement le bras"
+                                + " avec un mouvement lent et"
+                                + " un contrôle musculaire maximal.")
+                        .bodyZone(BodyZone.COUDE)
+                        .targetAngle(170)
+                        .toleranceDegree(10)
+                        .recommendedDuration(30)
+                        .repsTarget(15)
+                        .difficultyLevel(Level.AVANCE)
+                        .mediapipeJoints("LEFT_SHOULDER,LEFT_ELBOW,LEFT_WRIST")
                         .build()
         );
 
         exerciseRepository.saveAll(exercises);
-        log.info("✅ {} exercices MVP créés",
-                exercises.size());
+        log.info("{} exercices initialisés avec succès"
+                + " (5 zones × 3 niveaux)", exercises.size());
     }
 }

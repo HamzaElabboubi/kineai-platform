@@ -36,31 +36,51 @@ public class AuthService {
     private final UserMapper userMapper;
 
     //-------Login-------------------
-    public AuthResponse login(LoginRequest login){
+    public AuthResponse Login(LoginRequest login) {
         // 1. Vérifier credentials
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                login.getEmail(),
-                login.getPassword()
-        ));
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        login.getEmail(),
+                        login.getPassword()
+                ));
+
         // 2. Charger utilisateur
         User user = userRepository
                 .findByEmailAndActiveTrue(login.getEmail())
-                .orElseThrow(() -> new BusinessException("Compte inactif ou introuvable"));
+                .orElseThrow(() -> new RuntimeException(
+                        "Compte inactif ou introuvable"));
+
+        // ✅ NOUVEAU — Vérifier validation kiné AVANT
+        // de construire la réponse
+        if (user.getRole() == Role.KINE) {
+            Kinesitherapeute kine = user.getKinesitherapeute();
+            if (kine == null || !kine.getValidated()) {
+                throw new RuntimeException(
+                        "Votre compte est en attente de validation"
+                                + " par l'administrateur. Vous recevrez"
+                                + " un accès dès qu'il sera validé.");
+            }
+        }
 
         // 3. Construire AuthResponse selon le role
         AuthResponse response = switch (user.getRole()) {
-            case Role.PATIENT -> userMapper.toAuthResponse(user,user.getPatient());
-            case Role.KINE -> userMapper.toAuthResponse(user,user.getKinesitherapeute());
-            case Role.ADMIN  -> AuthResponse.builder()
+            case Role.PATIENT -> userMapper.toAuthResponse(
+                    user, user.getPatient());
+            case Role.KINE -> userMapper.toAuthResponse(
+                    user, user.getKinesitherapeute());
+            case Role.ADMIN -> AuthResponse.builder()
                     .userId(user.getId())
                     .email(user.getEmail())
                     .role(user.getRole().name())
                     .fullName("Administrateur")
                     .build();
         };
+
         // 4. Ajouter tokens JWT
-        response.setAccessToken(jwtUtils.generateAccessToken(user.getEmail(), user.getRole().name()));
-        response.setRefreshToken(jwtUtils.generateRefreshToken(user.getEmail()));
+        response.setAccessToken(jwtUtils.generateAccessToken(
+                user.getEmail(), user.getRole().name()));
+        response.setRefreshToken(jwtUtils.generateRefreshToken(
+                user.getEmail()));
 
         log.info("Connexion réussie : {}", user.getEmail());
         return response;

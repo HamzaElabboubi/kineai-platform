@@ -7,18 +7,20 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.UUID;
 
-public interface AlertRepository extends JpaRepository<Alert, UUID> {
-    // Alertes non résolues d'un kiné — dashboard kiné
-    List<Alert> findByKinesitherapeuteIdAndResolvedFalse(UUID kineId);
+public interface AlertRepository
+        extends JpaRepository<Alert, UUID> {
 
-    // Alertes d'un patient
-    List<Alert> findByPatientId(UUID patientId);
-
-    // Compter alertes non résolues — badge compteur dashboard
-    long countByKinesitherapeuteIdAndResolvedFalse(UUID kineId);
-
-    // Vérifier si alerte déjà existante — éviter doublons
     boolean existsByPatientIdAndTypeAndResolvedFalse(
             UUID patientId, AlertType type);
 
+    List<Alert> findByKinesitherapeuteIdAndResolvedFalse(
+            UUID kineId);
+
+    long countByKinesitherapeuteIdAndResolvedFalse(
+            UUID kineId);
+
+    // ✅ Nouveau — toutes les alertes du patient
+    // (résolues ET non résolues, triées récent → ancien)
+    List<Alert> findByPatientIdOrderBySentAtDesc(
+            UUID patientId);
 }

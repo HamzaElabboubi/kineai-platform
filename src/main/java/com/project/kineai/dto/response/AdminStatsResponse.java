@@ -12,8 +12,9 @@ public class AdminStatsResponse {
     private long totalKines;
     private long validatedKines;
     private long pendingKines;
-
-    // ✅ Nouveau — répartitions pour les charts
     private Map<String, Long> patientsByLevel;
     private Map<String, Long> patientsByPathology;
+
+    // ✅ Nouveau — seulement ceci
+    private Map<String, Long> kinesBySpeciality;
 }
