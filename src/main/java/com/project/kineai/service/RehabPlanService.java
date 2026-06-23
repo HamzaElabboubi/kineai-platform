@@ -8,10 +8,7 @@ import com.project.kineai.model.entity.Exercise;
 import com.project.kineai.model.entity.Patient;
 import com.project.kineai.model.entity.PlanExercise;
 import com.project.kineai.model.entity.RehabPlan;
-import com.project.kineai.model.enums.BodyZone;
-import com.project.kineai.model.enums.Level;
-import com.project.kineai.model.enums.SessionDay;
-import com.project.kineai.model.enums.Status;
+import com.project.kineai.model.enums.*;
 import com.project.kineai.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -155,6 +152,18 @@ public class RehabPlanService {
     // ── Règle RG-19/RG-20 ────────────────────
     @Transactional
     public void checkProgression(UUID patientId) {
+
+        long totalCompleted = sessionRepository
+                .countCompletedSessions(patientId);
+
+        if (totalCompleted < 3) {
+            log.info("Patient {} — seulement {} séance(s)"
+                            + " complétée(s), progression non"
+                            + " évaluée (minimum 3 requis)",
+                    patientId, totalCompleted);
+            return;
+        }
+
         Double avgScore = sessionRepository
                 .getAverageScoreLastThreeSessions(patientId);
         if (avgScore == null) return;
@@ -229,6 +238,50 @@ public class RehabPlanService {
                 planRepository
                         .findByPatientIdOrderByStartDateDesc(
                                 patientId));
+    }
+
+    // ── Avancement automatique de semaine ─────
+// Appelée après chaque séance complétée —
+// si les 3 séances de la semaine courante sont
+// faites, on passe à la semaine suivante
+    @Transactional
+    public void checkWeekAdvancement(UUID planId) {
+        RehabPlan plan = planRepository.findById(planId)
+                .orElse(null);
+        if (plan == null
+                || plan.getStatus() != Status.ACTIVE) {
+            return;
+        }
+
+        int currentWeek = plan.getCurrentWeek();
+
+        LocalDate weekStart = plan.getStartDate()
+                .plusDays((currentWeek - 1) * 7L);
+        LocalDate weekEnd = weekStart.plusDays(7);
+
+        long sessionsThisWeek = sessionRepository
+                .countByRehabPlanIdAndSessionStatusAndStartTimeBetween(
+                        plan.getId(),
+                        SessionStatus.COMPLETED,
+                        weekStart.atStartOfDay(),
+                        weekEnd.atStartOfDay());
+
+        // 3 séances/semaine — seuil cohérent avec
+        // TRAINING_DAYS dans ExerciseService
+        if (sessionsThisWeek >= 3) {
+            if (currentWeek >= 4) {
+                // Plan de 4 semaines terminé
+                plan.setStatus(Status.DONE);
+                planRepository.save(plan);
+                log.info("Plan {} terminé après 4 semaines",
+                        plan.getId());
+            } else {
+                plan.setCurrentWeek(currentWeek + 1);
+                planRepository.save(plan);
+                log.info("Plan {} — passage à la semaine {}",
+                        plan.getId(), currentWeek + 1);
+            }
+        }
     }
 
 }

@@ -11,4 +11,6 @@ import java.util.UUID;
 public interface RehabPlanRepository extends JpaRepository<RehabPlan, UUID> {
     Optional<RehabPlan> findByPatientIdAndStatus(UUID patientId, Status status);
     List<RehabPlan> findByPatientIdOrderByStartDateDesc(UUID patientId);
+    boolean existsByPatientIdAndStatus(
+            UUID patientId, Status status);
 }

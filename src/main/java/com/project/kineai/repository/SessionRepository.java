@@ -36,4 +36,14 @@ public interface SessionRepository extends JpaRepository<Session, UUID> {
         ) AS last3
         """, nativeQuery = true)
     Double getAverageScoreLastThreeSessions(UUID patientId);
+
+    // ✅ Nouveau — compter le total de séances
+    // complétées, pour vérifier le seuil minimum
+    // avant d'évaluer une progression/régression
+    @Query(value = """
+        SELECT COUNT(*) FROM sessions
+        WHERE patient_id = :patientId
+        AND status = 'COMPLETED'
+        """, nativeQuery = true)
+    long countCompletedSessions(UUID patientId);
 }

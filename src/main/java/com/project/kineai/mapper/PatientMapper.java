@@ -15,6 +15,7 @@ public interface PatientMapper {
     // Ignorer les champs de Patient qui n'existent pas dans PatientResponse
     @Mapping(source = "kine.id",       target = "kineId")
     @Mapping(source = "kine.fullName", target = "kineName")
+    @Mapping(source = "user.active",   target = "isActive")
     PatientResponse toResponse(Patient patient);
 
     // ✅ toResponseList — MapStruct génère automatiquement

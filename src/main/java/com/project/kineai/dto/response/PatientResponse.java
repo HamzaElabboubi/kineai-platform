@@ -17,4 +17,5 @@ public class PatientResponse {
     private Integer totalXp;
     private String kineName;
     private UUID kineId;
+    private Boolean isActive;
 }

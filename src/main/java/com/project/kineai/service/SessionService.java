@@ -95,6 +95,12 @@ public class SessionService {
         // Vérifier progression/régression — RG-19/RG-20
         rehabPlanService.checkProgression(patient.getId());
 
+        // ✅ Nouveau — vérifier l'avancement de semaine
+        if (session.getRehabPlan() != null) {
+            rehabPlanService.checkWeekAdvancement(
+                    session.getRehabPlan().getId());
+        }
+
         log.info("Séance {} terminée — score: {}", sessionId, request.getFinalScore());
         return sessionMapper.toResponse(session);
     }
