@@ -3,10 +3,7 @@ package com.project.kineai.service;
 import com.project.kineai.dto.response.ExerciseResponse;
 import com.project.kineai.exception.BusinessException;
 import com.project.kineai.mapper.ExerciseMapper;
-import com.project.kineai.model.entity.Exercise;
-import com.project.kineai.model.entity.Patient;
-import com.project.kineai.model.entity.PlanExercise;
-import com.project.kineai.model.entity.RehabPlan;
+import com.project.kineai.model.entity.*;
 import com.project.kineai.model.enums.Level;
 import com.project.kineai.model.enums.SessionDay;
 import com.project.kineai.model.enums.SessionStatus;
@@ -21,7 +18,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -69,34 +68,12 @@ public class ExerciseService {
                 .orElseThrow(() -> new BusinessException(
                         "Patient introuvable"));
 
-        Optional<RehabPlan> activePlanOpt =
-                rehabPlanRepository
-                        .findByPatientIdAndStatus(
-                                patient.getId(), Status.ACTIVE);
-
-        if (activePlanOpt.isEmpty()) {
-            // ✅ Distinguer "jamais eu de plan" de
-            // "plan terminé avec succès"
-            boolean hasCompletedPlan = rehabPlanRepository
-                    .existsByPatientIdAndStatus(
-                            patient.getId(), Status.DONE);
-
-            if (hasCompletedPlan) {
-                throw new BusinessException(
-                        "Félicitations ! Vous avez terminé"
-                                + " votre programme de rééducation"
-                                + " avec succès. Contactez votre"
-                                + " kinésithérapeute pour la suite"
-                                + " de votre prise en charge.");
-            }
-
-            throw new BusinessException(
-                    "Aucun plan actif. Contactez votre"
-                            + " kinésithérapeute.");
-        }
-
-        RehabPlan activePlan = activePlanOpt.get();
-
+        RehabPlan activePlan = rehabPlanRepository
+                .findByPatientIdAndStatus(
+                        patient.getId(), Status.ACTIVE)
+                .orElseThrow(() -> new BusinessException(
+                        "Aucun plan actif. Contactez"
+                                + " votre kinésithérapeute."));
 
         int currentWeek = activePlan.getCurrentWeek();
 
@@ -118,6 +95,32 @@ public class ExerciseService {
                             + " Revenez la semaine prochaine !");
         }
 
+        // ✅ NOUVEAU — vérifier l'espacement minimum
+        // depuis la dernière séance complétée
+        Optional<Session> lastCompleted = sessionRepository
+                .findFirstByPatientIdAndSessionStatusOrderByStartTimeDesc(
+                        patient.getId(), SessionStatus.COMPLETED);
+
+        if (lastCompleted.isPresent()) {
+            LocalDateTime lastSessionTime =
+                    lastCompleted.get().getStartTime();
+            LocalDateTime now = LocalDateTime.now();
+
+            long hoursSinceLastSession =
+                    Duration.between(lastSessionTime, now)
+                            .toHours();
+
+            if (hoursSinceLastSession < 20) {
+                long hoursRemaining = 20 - hoursSinceLastSession;
+                throw new BusinessException(
+                        "Votre dernière séance était trop"
+                                + " récente. Pour laisser à votre"
+                                + " corps le temps de récupérer,"
+                                + " revenez dans environ "
+                                + hoursRemaining + "h.");
+            }
+        }
+
         SessionDay nextDay =
                 TRAINING_DAYS[(int) sessionsThisWeek];
 
@@ -134,10 +137,6 @@ public class ExerciseService {
                             + " votre kinésithérapeute.");
         }
 
-        // ✅ Ajustement dynamique selon le niveau ACTUEL
-        // du patient — ni les reps ni la tolérance ne
-        // sont modifiées en base, seulement dans la
-        // réponse envoyée au frontend
         return planExercises.stream()
                 .map(PlanExercise::getExercise)
                 .distinct()
@@ -145,7 +144,6 @@ public class ExerciseService {
                         ex, patient.getLevel()))
                 .collect(Collectors.toList());
     }
-
 
     // ── Ajustement dynamique difficulté ───────
 // Le système expert rend l'exercice plus exigeant

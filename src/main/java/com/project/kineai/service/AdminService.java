@@ -164,4 +164,46 @@ public class AdminService {
 
         return patientMapper.toResponse(patient);
     }
+
+    // ── Désactiver un kiné (suspension) ───────
+    @Transactional
+    public KineResponse deactivateKine(UUID kineId) {
+        Kinesitherapeute kine = kineRepository
+                .findById(kineId)
+                .orElseThrow(() -> new BusinessException(
+                        "Kinésithérapeute introuvable"));
+
+        if (!kine.getValidated()) {
+            throw new BusinessException(
+                    "Ce compte n'est pas encore validé."
+                            + " Utilisez plutôt le rejet.");
+        }
+
+        kine.getUser().setActive(false);
+        userRepository.save(kine.getUser());
+
+        log.info("Kiné désactivé : {}", kine.getFullName());
+        return kineMapper.toResponse(kine);
+    }
+
+    // ── Réactiver un kiné ──────────────────────
+    @Transactional
+    public KineResponse activateKine(UUID kineId) {
+        Kinesitherapeute kine = kineRepository
+                .findById(kineId)
+                .orElseThrow(() -> new BusinessException(
+                        "Kinésithérapeute introuvable"));
+
+        if (!kine.getValidated()) {
+            throw new BusinessException(
+                    "Ce compte doit d'abord être validé"
+                            + " avant réactivation.");
+        }
+
+        kine.getUser().setActive(true);
+        userRepository.save(kine.getUser());
+
+        log.info("Kiné réactivé : {}", kine.getFullName());
+        return kineMapper.toResponse(kine);
+    }
 }

@@ -46,4 +46,8 @@ public interface SessionRepository extends JpaRepository<Session, UUID> {
         AND status = 'COMPLETED'
         """, nativeQuery = true)
     long countCompletedSessions(UUID patientId);
+
+
+    Optional<Session> findFirstByPatientIdAndSessionStatusOrderByStartTimeDesc(
+            UUID patientId, SessionStatus status);
 }

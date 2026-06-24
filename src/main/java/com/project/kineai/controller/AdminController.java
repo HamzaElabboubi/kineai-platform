@@ -117,4 +117,25 @@ public class AdminController {
         return ResponseEntity.ok(
                 adminService.reassignKine(patientId, newKineId));
     }
+
+
+    @PutMapping("/kine/{id}/deactivate")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Désactiver un compte kiné"
+            + " (suspension, réversible)")
+    public ResponseEntity<KineResponse>
+    deactivateKine(@PathVariable UUID id) {
+        return ResponseEntity.ok(
+                adminService.deactivateKine(id));
+    }
+
+    @PutMapping("/kine/{id}/activate")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Réactiver un compte kiné"
+            + " précédemment désactivé")
+    public ResponseEntity<KineResponse>
+    activateKine(@PathVariable UUID id) {
+        return ResponseEntity.ok(
+                adminService.activateKine(id));
+    }
 }
