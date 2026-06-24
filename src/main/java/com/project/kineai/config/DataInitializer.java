@@ -100,6 +100,49 @@ public class DataInitializer implements ApplicationRunner {
                         .mediapipeJoints("LEFT_HIP,LEFT_KNEE,LEFT_ANKLE")
                         .build(),
 
+                // ✅ NOUVEAU — 2ème exercice par niveau, GENOU
+                Exercise.builder()
+                        .name("Extension genou — initiation")
+                        .description("Étendez doucement la jambe"
+                                + " devant vous, sans forcer, puis"
+                                + " repliez lentement.")
+                        .bodyZone(BodyZone.GENOU)
+                        .targetAngle(140)
+                        .toleranceDegree(20)
+                        .recommendedDuration(20)
+                        .repsTarget(8)
+                        .difficultyLevel(Level.DEBUTANT)
+                        .mediapipeJoints("LEFT_HIP,LEFT_KNEE,LEFT_ANKLE")
+                        .build(),
+
+                Exercise.builder()
+                        .name("Squat partiel contrôlé")
+                        .description("Fléchissez les genoux en"
+                                + " gardant le dos droit, comme"
+                                + " pour vous asseoir, puis remontez.")
+                        .bodyZone(BodyZone.GENOU)
+                        .targetAngle(110)
+                        .toleranceDegree(15)
+                        .recommendedDuration(25)
+                        .repsTarget(12)
+                        .difficultyLevel(Level.INTERMEDIAIRE)
+                        .mediapipeJoints("LEFT_HIP,LEFT_KNEE,LEFT_ANKLE")
+                        .build(),
+
+                Exercise.builder()
+                        .name("Fente arrière genou")
+                        .description("Reculez une jambe en fléchissant"
+                                + " le genou avant à angle contrôlé,"
+                                + " puis revenez à la position initiale.")
+                        .bodyZone(BodyZone.GENOU)
+                        .targetAngle(150)
+                        .toleranceDegree(10)
+                        .recommendedDuration(30)
+                        .repsTarget(15)
+                        .difficultyLevel(Level.AVANCE)
+                        .mediapipeJoints("LEFT_HIP,LEFT_KNEE,LEFT_ANKLE")
+                        .build(),
+
                 // ═══════════ EPAULE ═══════════
                 Exercise.builder()
                         .name("Élévation épaule — légère")
@@ -143,6 +186,50 @@ public class DataInitializer implements ApplicationRunner {
                         .mediapipeJoints("LEFT_SHOULDER,LEFT_ELBOW,LEFT_WRIST")
                         .build(),
 
+                // ✅ NOUVEAU — 2ème exercice par niveau, EPAULE
+                Exercise.builder()
+                        .name("Rotation épaule — légère")
+                        .description("Effectuez de petits cercles"
+                                + " avec le bras tendu, dans un"
+                                + " mouvement doux et contrôlé.")
+                        .bodyZone(BodyZone.EPAULE)
+                        .targetAngle(45)
+                        .toleranceDegree(20)
+                        .recommendedDuration(20)
+                        .repsTarget(8)
+                        .difficultyLevel(Level.DEBUTANT)
+                        .mediapipeJoints("LEFT_SHOULDER,LEFT_ELBOW,LEFT_WRIST")
+                        .build(),
+
+                Exercise.builder()
+                        .name("Élévation latérale épaule")
+                        .description("Levez le bras sur le côté"
+                                + " jusqu'à l'horizontale, maintenez"
+                                + " puis redescendez avec contrôle.")
+                        .bodyZone(BodyZone.EPAULE)
+                        .targetAngle(100)
+                        .toleranceDegree(15)
+                        .recommendedDuration(25)
+                        .repsTarget(10)
+                        .difficultyLevel(Level.INTERMEDIAIRE)
+                        .mediapipeJoints("LEFT_SHOULDER,LEFT_ELBOW,LEFT_WRIST")
+                        .build(),
+
+                Exercise.builder()
+                        .name("Élévation complète résistance")
+                        .description("Levez le bras complètement"
+                                + " au-dessus de la tête avec un"
+                                + " mouvement lent et puissant.")
+                        .bodyZone(BodyZone.EPAULE)
+                        .targetAngle(165)
+                        .toleranceDegree(12)
+                        .recommendedDuration(30)
+                        .repsTarget(14)
+                        .difficultyLevel(Level.AVANCE)
+                        .mediapipeJoints("LEFT_SHOULDER,LEFT_ELBOW,LEFT_WRIST")
+                        .build(),
+
+
                 // ═══════════ DOS ═══════════
                 Exercise.builder()
                         .name("Redressement dos — doux")
@@ -181,6 +268,49 @@ public class DataInitializer implements ApplicationRunner {
                         .targetAngle(170)
                         .toleranceDegree(10)
                         .recommendedDuration(35)
+                        .repsTarget(15)
+                        .difficultyLevel(Level.AVANCE)
+                        .mediapipeJoints("LEFT_SHOULDER,LEFT_HIP,LEFT_KNEE")
+                        .build(),
+
+                // ✅ NOUVEAU — 2ème exercice par niveau, DOS
+                Exercise.builder()
+                        .name("Inclinaison latérale dos")
+                        .description("Inclinez doucement le buste"
+                                + " sur le côté en gardant les"
+                                + " hanches stables.")
+                        .bodyZone(BodyZone.DOS)
+                        .targetAngle(110)
+                        .toleranceDegree(20)
+                        .recommendedDuration(20)
+                        .repsTarget(8)
+                        .difficultyLevel(Level.DEBUTANT)
+                        .mediapipeJoints("LEFT_SHOULDER,LEFT_HIP,LEFT_KNEE")
+                        .build(),
+
+                Exercise.builder()
+                        .name("Rotation tronc contrôlée")
+                        .description("Tournez le haut du corps"
+                                + " progressivement en gardant le"
+                                + " bassin fixe, puis revenez.")
+                        .bodyZone(BodyZone.DOS)
+                        .targetAngle(150)
+                        .toleranceDegree(15)
+                        .recommendedDuration(25)
+                        .repsTarget(10)
+                        .difficultyLevel(Level.INTERMEDIAIRE)
+                        .mediapipeJoints("LEFT_SHOULDER,LEFT_HIP,LEFT_KNEE")
+                        .build(),
+
+                Exercise.builder()
+                        .name("Extension dorsale complète")
+                        .description("Redressez complètement le dos"
+                                + " avec un mouvement ample et"
+                                + " maîtrisé sur toute l'amplitude.")
+                        .bodyZone(BodyZone.DOS)
+                        .targetAngle(175)
+                        .toleranceDegree(10)
+                        .recommendedDuration(30)
                         .repsTarget(15)
                         .difficultyLevel(Level.AVANCE)
                         .mediapipeJoints("LEFT_SHOULDER,LEFT_HIP,LEFT_KNEE")
@@ -229,6 +359,49 @@ public class DataInitializer implements ApplicationRunner {
                         .mediapipeJoints("LEFT_SHOULDER,LEFT_HIP,LEFT_KNEE")
                         .build(),
 
+                // ✅ NOUVEAU — 2ème exercice par niveau, HANCHE
+                Exercise.builder()
+                        .name("Abduction hanche légère")
+                        .description("Écartez doucement la jambe"
+                                + " sur le côté en gardant le"
+                                + " buste stable.")
+                        .bodyZone(BodyZone.HANCHE)
+                        .targetAngle(110)
+                        .toleranceDegree(20)
+                        .recommendedDuration(20)
+                        .repsTarget(8)
+                        .difficultyLevel(Level.DEBUTANT)
+                        .mediapipeJoints("LEFT_SHOULDER,LEFT_HIP,LEFT_KNEE")
+                        .build(),
+
+                Exercise.builder()
+                        .name("Extension hanche contrôlée")
+                        .description("Tendez la jambe vers l'arrière"
+                                + " en gardant l'équilibre, puis"
+                                + " ramenez-la lentement.")
+                        .bodyZone(BodyZone.HANCHE)
+                        .targetAngle(100)
+                        .toleranceDegree(15)
+                        .recommendedDuration(25)
+                        .repsTarget(12)
+                        .difficultyLevel(Level.INTERMEDIAIRE)
+                        .mediapipeJoints("LEFT_SHOULDER,LEFT_HIP,LEFT_KNEE")
+                        .build(),
+
+                Exercise.builder()
+                        .name("Fente latérale hanche")
+                        .description("Réalisez une fente sur le côté"
+                                + " en gardant l'alignement du genou"
+                                + " et de la hanche.")
+                        .bodyZone(BodyZone.HANCHE)
+                        .targetAngle(130)
+                        .toleranceDegree(12)
+                        .recommendedDuration(30)
+                        .repsTarget(14)
+                        .difficultyLevel(Level.AVANCE)
+                        .mediapipeJoints("LEFT_SHOULDER,LEFT_HIP,LEFT_KNEE")
+                        .build(),
+
                 // ═══════════ COUDE ═══════════
                 Exercise.builder()
                         .name("Flexion coude — légère")
@@ -265,6 +438,50 @@ public class DataInitializer implements ApplicationRunner {
                                 + " un contrôle musculaire maximal.")
                         .bodyZone(BodyZone.COUDE)
                         .targetAngle(170)
+                        .toleranceDegree(10)
+                        .recommendedDuration(30)
+                        .repsTarget(15)
+                        .difficultyLevel(Level.AVANCE)
+                        .mediapipeJoints("LEFT_SHOULDER,LEFT_ELBOW,LEFT_WRIST")
+                        .build() ,
+
+
+                // ✅ NOUVEAU — 2ème exercice par niveau, COUDE
+                Exercise.builder()
+                        .name("Extension coude légère")
+                        .description("Étendez doucement le bras"
+                                + " depuis le coude plié, sans"
+                                + " forcer, puis repliez.")
+                        .bodyZone(BodyZone.COUDE)
+                        .targetAngle(120)
+                        .toleranceDegree(20)
+                        .recommendedDuration(20)
+                        .repsTarget(10)
+                        .difficultyLevel(Level.DEBUTANT)
+                        .mediapipeJoints("LEFT_SHOULDER,LEFT_ELBOW,LEFT_WRIST")
+                        .build(),
+
+                Exercise.builder()
+                        .name("Pronation-supination coude")
+                        .description("Tournez l'avant-bras alternant"
+                                + " paume vers le haut et vers le"
+                                + " bas, coude fixe.")
+                        .bodyZone(BodyZone.COUDE)
+                        .targetAngle(75)
+                        .toleranceDegree(15)
+                        .recommendedDuration(25)
+                        .repsTarget(12)
+                        .difficultyLevel(Level.INTERMEDIAIRE)
+                        .mediapipeJoints("LEFT_SHOULDER,LEFT_ELBOW,LEFT_WRIST")
+                        .build(),
+
+                Exercise.builder()
+                        .name("Flexion-extension résistance")
+                        .description("Alternez flexion et extension"
+                                + " complètes du coude avec un"
+                                + " contrôle musculaire maximal.")
+                        .bodyZone(BodyZone.COUDE)
+                        .targetAngle(165)
                         .toleranceDegree(10)
                         .recommendedDuration(30)
                         .repsTarget(15)

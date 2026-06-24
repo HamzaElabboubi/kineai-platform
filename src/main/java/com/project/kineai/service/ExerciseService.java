@@ -137,11 +137,11 @@ public class ExerciseService {
                             + " votre kinésithérapeute.");
         }
 
+        // ✅ APRÈS — on garde le PlanExercise complet,
+// pas juste l'Exercise, pour accéder à repsPrescribed
         return planExercises.stream()
-                .map(PlanExercise::getExercise)
-                .distinct()
-                .map(ex -> buildAdjustedResponse(
-                        ex, patient.getLevel()))
+                .map(pe -> buildAdjustedResponse(
+                        pe, patient.getLevel()))
                 .collect(Collectors.toList());
     }
 
@@ -150,14 +150,25 @@ public class ExerciseService {
 // (plus de reps, tolérance plus stricte) selon
 // le niveau réel du patient, sans jamais toucher
 // aux données stockées en base
+    // ✅ APRÈS — prend PlanExercise, base sur
+// repsPrescribed (progressif) au lieu de
+// repsTarget (fixe)
     private ExerciseResponse buildAdjustedResponse(
-            Exercise exercise, Level patientLevel) {
+            PlanExercise planExercise, Level patientLevel) {
 
+        Exercise exercise = planExercise.getExercise();
         ExerciseResponse response =
                 exerciseMapper.toResponse(exercise);
 
-        int baseReps = exercise.getRepsTarget() != null
-                ? exercise.getRepsTarget() : 10;
+        // ✅ Base = reps PROGRESSIVES de cette séance
+        // précise (déjà ajustées par semaine dans
+        // RehabPlanService), pas la valeur fixe du
+        // catalogue
+        int baseReps = planExercise.getRepsPrescribed() != null
+                ? planExercise.getRepsPrescribed()
+                : (exercise.getRepsTarget() != null
+                ? exercise.getRepsTarget() : 10);
+
         int baseTolerance =
                 exercise.getToleranceDegree() != null
                         ? exercise.getToleranceDegree() : 15;

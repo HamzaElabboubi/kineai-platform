@@ -84,6 +84,11 @@ public class RehabPlanService {
 
     // ── Système Expert — assignation automatique ──
 // des exercices selon pathologie + niveau du plan
+    // ── Système Expert — assignation automatique ──
+// des exercices selon pathologie + niveau du plan
+// Alterne entre les exercices disponibles (1 par
+// jour, pas tous empilés) et augmente légèrement
+// les répétitions au fil des semaines
     private void assignExercisesToplan(
             RehabPlan plan, Patient patient, Level level) {
 
@@ -95,7 +100,6 @@ public class RehabPlanService {
                         .findByBodyZoneAndDifficultyLevel(
                                 zone, level);
 
-        // ✅ Message clair pour le kiné, pas juste un log
         if (matchingExercises.isEmpty()) {
             throw new BusinessException(
                     "Aucun exercice disponible pour la zone "
@@ -104,30 +108,43 @@ public class RehabPlanService {
                             + " ajouter des exercices correspondants.");
         }
 
+        int exerciseCount = matchingExercises.size();
+        int dayIndex = 0; // compteur global tous jours confondus
+
         for (int week = 1; week <= 4; week++) {
             for (SessionDay day : TRAINING_DAYS) {
-                int order = 1;
-                for (Exercise exercise : matchingExercises) {
-                    PlanExercise pe = PlanExercise.builder()
-                            .rehabPlan(plan)
-                            .exercise(exercise)
-                            .weekNumber(week)
-                            .dayOfWeek(day)
-                            .repsPrescribed(
-                                    exercise.getRecommendedDuration() != null
-                                            ? exercise.getRecommendedDuration()
-                                            : 10)
-                            .orderInSession(order++)
-                            .build();
-                    planExerciseRepository.save(pe);
-                }
+
+                // ✅ Alternance — un seul exercice par jour,
+                // en tournant sur la liste disponible
+                Exercise exercise = matchingExercises.get(
+                        dayIndex % exerciseCount);
+                dayIndex++;
+
+                // ✅ Progression légère des répétitions
+                // selon la semaine — +2 reps par semaine
+                // par rapport à la base de l'exercice
+                int baseReps = exercise.getRepsTarget() != null
+                        ? exercise.getRepsTarget() : 10;
+                int progressiveReps = baseReps + (week - 1) * 2;
+
+                PlanExercise pe = PlanExercise.builder()
+                        .rehabPlan(plan)
+                        .exercise(exercise)
+                        .weekNumber(week)
+                        .dayOfWeek(day)
+                        .repsPrescribed(progressiveReps)
+                        .orderInSession(1)
+                        .build();
+                planExerciseRepository.save(pe);
             }
         }
 
-        log.info("{} exercice(s) assignés automatiquement"
-                        + " sur 12 séances pour le plan {}",
-                matchingExercises.size(), plan.getId());
+        log.info("{} exercice(s) disponibles, assignés en"
+                        + " alternance sur 12 séances (4 semaines"
+                        + " × 3 jours) pour le plan {}",
+                exerciseCount, plan.getId());
     }
+
     // ── Plan actif du patient connecté ────────
     @Transactional(readOnly = true)
     public RehabPlanResponse getActivePlanForCurrentPatient() {
