@@ -12,4 +12,5 @@ public interface BadgeRepository extends JpaRepository<Badge, UUID> {
     List<Badge> findByPatientIdOrderByUnlockedAtDesc(UUID patientId);
     Optional<Badge> findByPatientIdAndBadgeType(UUID patientId, BadgeType type);
     boolean existsByPatientIdAndBadgeType(UUID patientId, BadgeType type);
+    long countByPatientId(UUID patientId);
 }

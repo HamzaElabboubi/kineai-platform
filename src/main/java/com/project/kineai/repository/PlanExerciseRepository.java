@@ -26,5 +26,4 @@ public interface PlanExerciseRepository
             Integer weekNumber,
             com.project.kineai.model.enums.SessionDay dayOfWeek);
 
-
 }

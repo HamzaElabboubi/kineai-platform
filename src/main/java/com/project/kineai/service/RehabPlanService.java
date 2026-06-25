@@ -82,15 +82,18 @@ public class RehabPlanService {
         return planMapper.toResponse(plan);
     }
 
-    // ── Système Expert — assignation automatique ──
-// des exercices selon pathologie + niveau du plan
-    // ── Système Expert — assignation automatique ──
-// des exercices selon pathologie + niveau du plan
-// Alterne entre les exercices disponibles (1 par
-// jour, pas tous empilés) et augmente légèrement
-// les répétitions au fil des semaines
+    // ✅ APRÈS — génère SEULEMENT la semaine 1
     private void assignExercisesToplan(
             RehabPlan plan, Patient patient, Level level) {
+        generateWeekExercises(plan, patient, level, 1);
+    }
+
+    // ── Génère les exercices d'UNE semaine précise ──
+// Réutilisée à la création du plan (semaine 1)
+// ET à chaque avancement de semaine (2, 3, 4)
+    private void generateWeekExercises(
+            RehabPlan plan, Patient patient,
+            Level level, int weekNumber) {
 
         BodyZone zone = BodyZone.valueOf(
                 patient.getPathology().name());
@@ -109,40 +112,34 @@ public class RehabPlanService {
         }
 
         int exerciseCount = matchingExercises.size();
-        int dayIndex = 0; // compteur global tous jours confondus
+        // dayIndex démarre selon la semaine pour garder
+        // une alternance cohérente même entre semaines
+        int dayIndex = (weekNumber - 1) * TRAINING_DAYS.length;
 
-        for (int week = 1; week <= 4; week++) {
-            for (SessionDay day : TRAINING_DAYS) {
+        for (SessionDay day : TRAINING_DAYS) {
+            Exercise exercise = matchingExercises.get(
+                    dayIndex % exerciseCount);
+            dayIndex++;
 
-                // ✅ Alternance — un seul exercice par jour,
-                // en tournant sur la liste disponible
-                Exercise exercise = matchingExercises.get(
-                        dayIndex % exerciseCount);
-                dayIndex++;
+            int baseReps = exercise.getRepsTarget() != null
+                    ? exercise.getRepsTarget() : 10;
+            int progressiveReps =
+                    baseReps + (weekNumber - 1) * 2;
 
-                // ✅ Progression légère des répétitions
-                // selon la semaine — +2 reps par semaine
-                // par rapport à la base de l'exercice
-                int baseReps = exercise.getRepsTarget() != null
-                        ? exercise.getRepsTarget() : 10;
-                int progressiveReps = baseReps + (week - 1) * 2;
-
-                PlanExercise pe = PlanExercise.builder()
-                        .rehabPlan(plan)
-                        .exercise(exercise)
-                        .weekNumber(week)
-                        .dayOfWeek(day)
-                        .repsPrescribed(progressiveReps)
-                        .orderInSession(1)
-                        .build();
-                planExerciseRepository.save(pe);
-            }
+            PlanExercise pe = PlanExercise.builder()
+                    .rehabPlan(plan)
+                    .exercise(exercise)
+                    .weekNumber(weekNumber)
+                    .dayOfWeek(day)
+                    .repsPrescribed(progressiveReps)
+                    .orderInSession(1)
+                    .build();
+            planExerciseRepository.save(pe);
         }
 
-        log.info("{} exercice(s) disponibles, assignés en"
-                        + " alternance sur 12 séances (4 semaines"
-                        + " × 3 jours) pour le plan {}",
-                exerciseCount, plan.getId());
+        log.info("Semaine {} générée pour le plan {} —"
+                        + " {} exercice(s) disponibles, niveau {}",
+                weekNumber, plan.getId(), exerciseCount, level);
     }
 
     // ── Plan actif du patient connecté ────────
@@ -261,6 +258,9 @@ public class RehabPlanService {
 // Appelée après chaque séance complétée —
 // si les 3 séances de la semaine courante sont
 // faites, on passe à la semaine suivante
+    // ✅ APRÈS — génère la semaine suivante avec le
+// niveau ACTUEL du patient (à jour après
+// checkProgression())
     @Transactional
     public void checkWeekAdvancement(UUID planId) {
         RehabPlan plan = planRepository.findById(planId)
@@ -283,22 +283,34 @@ public class RehabPlanService {
                         weekStart.atStartOfDay(),
                         weekEnd.atStartOfDay());
 
-        // 3 séances/semaine — seuil cohérent avec
-        // TRAINING_DAYS dans ExerciseService
         if (sessionsThisWeek >= 3) {
             if (currentWeek >= 4) {
-                // Plan de 4 semaines terminé
                 plan.setStatus(Status.DONE);
                 planRepository.save(plan);
                 log.info("Plan {} terminé après 4 semaines",
                         plan.getId());
             } else {
-                plan.setCurrentWeek(currentWeek + 1);
+                int nextWeek = currentWeek + 1;
+                plan.setCurrentWeek(nextWeek);
                 planRepository.save(plan);
-                log.info("Plan {} — passage à la semaine {}",
-                        plan.getId(), currentWeek + 1);
+
+                // ✅ Génère la semaine suivante MAINTENANT,
+                // avec le niveau ACTUEL du patient (qui a
+                // pu changer juste avant via checkProgression)
+                Patient patient = plan.getPatient();
+                generateWeekExercises(
+                        plan, patient,
+                        patient.getLevel(), nextWeek);
+
+                log.info("Plan {} — passage à la semaine {}"
+                                + " et génération des exercices"
+                                + " niveau {}",
+                        plan.getId(), nextWeek,
+                        patient.getLevel());
             }
         }
     }
+
+
 
 }

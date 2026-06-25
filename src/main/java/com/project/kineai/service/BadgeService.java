@@ -75,4 +75,12 @@ public class BadgeService {
                     badgeRepository.save(badge);
                 });
     }
+
+    // ── Compter mes badges débloqués ──────────
+    @Transactional(readOnly = true)
+    public long countMyBadges() {
+        Patient patient = patientService.getCurrentPatient();
+        return badgeRepository
+                .countByPatientId(patient.getId());
+    }
 }

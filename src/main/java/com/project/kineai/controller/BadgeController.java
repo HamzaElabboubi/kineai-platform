@@ -39,4 +39,14 @@ public class BadgeController {
         badgeService.markDisplayed(badgeId);
         return ResponseEntity.ok().build();
     }
+
+    // ── Compteur de badges débloqués ──────────
+    @GetMapping("/my/count")
+    @PreAuthorize("hasRole('PATIENT')")
+    @Operation(summary = "Nombre total de badges débloqués"
+            + " par le patient connecté")
+    public ResponseEntity<Long> countMyBadges() {
+        return ResponseEntity.ok(
+                badgeService.countMyBadges());
+    }
 }

@@ -6,7 +6,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-public class KineaiApplication {
+public class 	KineaiApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(KineaiApplication.class, args);
