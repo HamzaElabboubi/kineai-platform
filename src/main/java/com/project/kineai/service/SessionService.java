@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -30,6 +31,7 @@ public class SessionService {
     private final PatientService patientService;
     private final com.project.kineai.service.BadgeService badgeService;
     private final RehabPlanService rehabPlanService;
+    private final PatientRepository patientRepository;
 
     // ── Démarrer séance ───────────────────────
     @Transactional
@@ -66,36 +68,48 @@ public class SessionService {
     }
 
     // ── Terminer séance ───────────────────────
+    // SessionService.java — completeSession() corrigée
+
     @Transactional
     public SessionResponse completeSession(UUID sessionId,
                                            CompleteSessionRequest request) {
         Session session = getSessionOrThrow(sessionId);
         Patient patient = session.getPatient();
 
-        // Mettre à jour la séance
         session.setSessionStatus(SessionStatus.COMPLETED);
         session.setEndTime(LocalDateTime.now());
         session.setScore(request.getFinalScore());
         session.setRepsCompleted(request.getRepsCompleted());
         session.setJointAngles(request.getJointAngles());
 
-        // Calculer XP — RG-29
         int xp = calculateXp(session);
         session.setXpEarned(xp);
 
-        // Mise à jour XP et streak patient — RG-31
         patient.setTotalXp(patient.getTotalXp() + xp);
-        patient.setStreakCount(patient.getStreakCount() + 1);
+
+        // ✅ RG-31 — vérifier si une séance a déjà été
+        // complétée AUJOURD'HUI avant d'incrémenter le streak
+        LocalDateTime todayStart = LocalDate.now().atStartOfDay();
+        List<Session> todaySessions = sessionRepository
+                .findByPatientIdAndStartTimeAfterAndSessionStatus(
+                        patient.getId(), todayStart,
+                        SessionStatus.COMPLETED);
+
+        // todaySessions contient déjà la séance qu'on vient
+        // de sauvegarder plus bas — donc on vérifie AVANT
+        // le save() si une AUTRE séance complétée existe déjà
+        boolean alreadyCompletedToday = !todaySessions.isEmpty();
+
+        if (!alreadyCompletedToday) {
+            patient.setStreakCount(patient.getStreakCount() + 1);
+        }
 
         session = sessionRepository.save(session);
 
-        // Vérifier badges — RG-30
         badgeService.checkAndUnlockBadges(patient, session);
 
-        // Vérifier progression/régression — RG-19/RG-20
         rehabPlanService.checkProgression(patient.getId());
 
-        // ✅ Nouveau — vérifier l'avancement de semaine
         if (session.getRehabPlan() != null) {
             rehabPlanService.checkWeekAdvancement(
                     session.getRehabPlan().getId());
@@ -106,11 +120,19 @@ public class SessionService {
     }
 
     // ── Interrompre séance ────────────────────
+    // ── Interrompre séance ────────────────────
     @Transactional
     public SessionResponse interruptSession(UUID sessionId) {
         Session session = getSessionOrThrow(sessionId);
         session.setSessionStatus(SessionStatus.INTERRUPTED);
         session.setEndTime(LocalDateTime.now());
+
+        // ✅ Casser le streak — l'abandon en cours de
+        // séance rompt la série de réussites consécutives
+        Patient patient = session.getPatient();
+        patient.setStreakCount(0);
+        patientRepository.save(patient);
+
         return sessionMapper.toResponse(sessionRepository.save(session));
     }
 
@@ -141,4 +163,6 @@ public class SessionService {
         return sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new BusinessException("Séance introuvable"));
     }
+
+
 }

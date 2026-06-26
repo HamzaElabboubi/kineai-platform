@@ -81,4 +81,14 @@ public class AlertService {
                         .findByPatientIdOrderBySentAtDesc(
                                 patient.getId()));
     }
+
+    // ── Toutes mes alertes (résolues + non résolues) ──
+    @Transactional(readOnly = true)
+    public List<AlertResponse> getAllMyAlerts() {
+        Kinesitherapeute kine = kineService.getCurrentKine();
+        return alertMapper.toResponseList(
+                alertRepository
+                        .findByKinesitherapeuteIdOrderBySentAtDesc(
+                                kine.getId()));
+    }
 }

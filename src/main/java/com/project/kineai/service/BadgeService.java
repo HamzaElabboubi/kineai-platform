@@ -80,7 +80,6 @@ public class BadgeService {
     @Transactional(readOnly = true)
     public long countMyBadges() {
         Patient patient = patientService.getCurrentPatient();
-        return badgeRepository
-                .countByPatientId(patient.getId());
+        return badgeRepository.countByPatientId(patient.getId());
     }
 }

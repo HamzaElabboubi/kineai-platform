@@ -23,4 +23,9 @@ public interface AlertRepository
     // (résolues ET non résolues, triées récent → ancien)
     List<Alert> findByPatientIdOrderBySentAtDesc(
             UUID patientId);
+
+    // ✅ Nouveau — toutes les alertes du kiné connecté
+// (résolues ET non résolues, triées récent → ancien)
+    List<Alert> findByKinesitherapeuteIdOrderBySentAtDesc(
+            UUID kineId);
 }

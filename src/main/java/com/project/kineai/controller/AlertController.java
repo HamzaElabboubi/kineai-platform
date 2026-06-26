@@ -57,4 +57,15 @@ public class AlertController {
         return ResponseEntity.ok(
                 alertService.getMyAlertsAsPatient());
     }
+
+    // ── Toutes mes alertes — historique complet ───
+    @GetMapping("/my/all")
+    @PreAuthorize("hasRole('KINE')")
+    @Operation(summary = "Historique complet des alertes"
+            + " du kiné connecté (résolues et non résolues)")
+    public ResponseEntity<List<AlertResponse>>
+    getAllMyAlerts() {
+        return ResponseEntity.ok(
+                alertService.getAllMyAlerts());
+    }
 }
