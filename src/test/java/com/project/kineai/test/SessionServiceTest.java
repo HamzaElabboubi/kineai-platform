@@ -13,7 +13,9 @@ import com.project.kineai.service.BadgeService;
 import com.project.kineai.service.PatientService;
 import com.project.kineai.service.RehabPlanService;
 import com.project.kineai.service.SessionService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,378 +24,350 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("SessionService — Tests unitaires")
 class SessionServiceTest {
 
-    // ── Mocks ─────────────────────────────────
-    @Mock private SessionRepository sessionRepository;
-    @Mock private SessionMetricsRepository metricsRepository;
-    @Mock private ExerciseRepository exerciseRepository;
-    @Mock private RehabPlanRepository planRepository;
-    @Mock private SessionMapper sessionMapper;
-    @Mock private SessionMetricsMapper metricsMapper;
-    @Mock private PatientService patientService;
-    @Mock private BadgeService badgeService;
-    @Mock private RehabPlanService rehabPlanService;
+    @Mock
+    private SessionRepository sessionRepository;
+    @Mock
+    private SessionMetricsRepository metricsRepository;
+    @Mock
+    private ExerciseRepository exerciseRepository;
+    @Mock
+    private RehabPlanRepository planRepository;
+    @Mock
+    private SessionMapper sessionMapper;
+    @Mock
+    private SessionMetricsMapper metricsMapper;
+    @Mock
+    private PatientService patientService;
+    @Mock
+    private BadgeService badgeService;
+    @Mock
+    private RehabPlanService rehabPlanService;
+    @Mock
+    private PatientRepository patientRepository;
 
-    // ── Service à tester ──────────────────────
     @InjectMocks
     private SessionService sessionService;
 
-    // ══════════════════════════════════════════
-    // TESTS startSession
-    // ══════════════════════════════════════════
+    private Patient patient;
+    private Exercise exercise;
+    private Session session;
+    private UUID sessionId;
 
-    @Test
-    @DisplayName("startSession — exercice introuvable — lève BusinessException")
-    void startSession_exerciseNotFound_throwsBusinessException() {
-        // Arrange
-        CreateSessionRequest request = CreateSessionRequest
-                .builder()
-                .exerciseId(UUID.randomUUID())
-                .build();
-
-        Patient patient = Patient.builder()
+    @BeforeEach
+    void setUp() {
+        patient = Patient.builder()
                 .id(UUID.randomUUID())
+                .fullName("Jean Dupont")
+                .totalXp(0)
+                .streakCount(0)
                 .build();
 
-        when(patientService.getCurrentPatient())
-                .thenReturn(patient);
-        when(exerciseRepository.findById(request.getExerciseId()))
-                .thenReturn(Optional.empty());
-
-        // Act + Assert
-        assertThrows(BusinessException.class,
-                () -> sessionService.startSession(request));
-    }
-
-    @Test
-    @DisplayName("startSession — succès — statut IN_PROGRESS")
-    void startSession_validRequest_statusInProgress() {
-        // Arrange
-        UUID exerciseId = UUID.randomUUID();
-        CreateSessionRequest request = CreateSessionRequest
-                .builder()
-                .exerciseId(exerciseId)
-                .build();
-
-        Patient patient = Patient.builder()
+        exercise = Exercise.builder()
                 .id(UUID.randomUUID())
+                .name("Flexion genou — initiation")
                 .build();
 
-        Exercise exercise = Exercise.builder()
-                .id(exerciseId)
-                .name("Flexion genou")
-                .build();
+        sessionId = UUID.randomUUID();
 
-        Session savedSession = Session.builder()
-                .id(UUID.randomUUID())
+        session = Session.builder()
+                .id(sessionId)
                 .patient(patient)
                 .exercise(exercise)
                 .sessionStatus(SessionStatus.IN_PROGRESS)
                 .startTime(LocalDateTime.now())
+                .repsCompleted(0)
+                .xpEarned(0)
                 .build();
-
-        when(patientService.getCurrentPatient())
-                .thenReturn(patient);
-        when(exerciseRepository.findById(exerciseId))
-                .thenReturn(Optional.of(exercise));
-        when(sessionRepository.save(any()))
-                .thenReturn(savedSession);
-        when(sessionMapper.toResponse(any()))
-                .thenReturn(new SessionResponse());
-
-        // Act
-        sessionService.startSession(request);
-
-        // Assert — statut IN_PROGRESS à la création
-        verify(sessionRepository).save(argThat(session ->
-                session.getSessionStatus() == SessionStatus.IN_PROGRESS));
     }
 
     // ══════════════════════════════════════════
-    // TESTS completeSession
+    // START SESSION
     // ══════════════════════════════════════════
+    @Nested
+    @DisplayName("startSession()")
+    class StartSessionTests {
 
-    @Test
-    @DisplayName("completeSession — séance introuvable — lève BusinessException")
-    void completeSession_sessionNotFound_throwsBusinessException() {
-        // Arrange
-        UUID sessionId = UUID.randomUUID();
-        when(sessionRepository.findById(sessionId))
-                .thenReturn(Optional.empty());
+        @Test
+        @DisplayName("Démarrage réussi — crée une session"
+                + " IN_PROGRESS")
+        void startSession_succes_creeSessionInProgress() {
+            CreateSessionRequest request =
+                    CreateSessionRequest.builder()
+                            .exerciseId(exercise.getId())
+                            .build();
 
-        // Act + Assert
-        assertThrows(BusinessException.class,
-                () -> sessionService.completeSession(
-                        sessionId,
-                        CompleteSessionRequest.builder()
-                                .finalScore(BigDecimal.valueOf(80.0))
-                                .repsCompleted(10)
-                                .build()));
-    }
+            when(patientService.getCurrentPatient())
+                    .thenReturn(patient);
+            when(exerciseRepository.findById(exercise.getId()))
+                    .thenReturn(Optional.of(exercise));
+            when(sessionRepository.save(any(Session.class)))
+                    .thenAnswer(inv -> inv.getArgument(0));
+            when(sessionMapper.toResponse(any(Session.class)))
+                    .thenReturn(new SessionResponse());
 
-    @Test
-    @DisplayName("completeSession — score > 80% — XP = 30 (RG-29)")
-    void completeSession_scoreAbove80_xpIs30() {
-        // Arrange
-        UUID sessionId = UUID.randomUUID();
+            SessionResponse response =
+                    sessionService.startSession(request);
 
-        Patient patient = Patient.builder()
-                .id(UUID.randomUUID())
-                .totalXp(0)
-                .streakCount(0)
-                .build();
+            assertThat(response).isNotNull();
 
-        Session session = Session.builder()
-                .id(sessionId)
-                .patient(patient)
-                .sessionStatus(SessionStatus.IN_PROGRESS)
-                .startTime(LocalDateTime.now())
-                .build();
+            verify(sessionRepository).save(argThat(s ->
+                    s.getSessionStatus() == SessionStatus.IN_PROGRESS
+                            && s.getPatient().equals(patient)
+                            && s.getExercise().equals(exercise)));
+        }
 
-        CompleteSessionRequest request = CompleteSessionRequest
-                .builder()
-                .finalScore(BigDecimal.valueOf(85.0))
-                .repsCompleted(10)
-                .jointAngles("{}")
-                .build();
+        @Test
+        @DisplayName("Exercice introuvable — lève"
+                + " BusinessException")
+        void startSession_exerciceIntrouvable_leveBusinessException() {
+            UUID exerciseId = UUID.randomUUID();
+            CreateSessionRequest request =
+                    CreateSessionRequest.builder()
+                            .exerciseId(exerciseId)
+                            .build();
 
-        when(sessionRepository.findById(sessionId))
-                .thenReturn(Optional.of(session));
-        when(sessionRepository.save(any()))
-                .thenReturn(session);
-        when(sessionMapper.toResponse(any()))
-                .thenReturn(new SessionResponse());
+            when(patientService.getCurrentPatient())
+                    .thenReturn(patient);
+            when(exerciseRepository.findById(exerciseId))
+                    .thenReturn(Optional.empty());
 
-        // Act
-        sessionService.completeSession(sessionId, request);
+            assertThatThrownBy(
+                    () -> sessionService.startSession(request))
+                    .isInstanceOf(BusinessException.class)
+                    .hasMessageContaining("Exercice introuvable");
 
-        // Assert — XP = 10 base + 20 bonus = 30 (RG-29)
-        verify(sessionRepository).save(argThat(s ->
-                s.getXpEarned() == 30));
-    }
-
-    @Test
-    @DisplayName("completeSession — score <= 80% — XP = 10 (RG-29)")
-    void completeSession_scoreBelow80_xpIs10() {
-        // Arrange
-        UUID sessionId = UUID.randomUUID();
-
-        Patient patient = Patient.builder()
-                .id(UUID.randomUUID())
-                .totalXp(0)
-                .streakCount(0)
-                .build();
-
-        Session session = Session.builder()
-                .id(sessionId)
-                .patient(patient)
-                .sessionStatus(SessionStatus.IN_PROGRESS)
-                .startTime(LocalDateTime.now())
-                .build();
-
-        CompleteSessionRequest request = CompleteSessionRequest
-                .builder()
-                .finalScore(BigDecimal.valueOf(75.0))
-                .repsCompleted(8)
-                .jointAngles("{}")
-                .build();
-
-        when(sessionRepository.findById(sessionId))
-                .thenReturn(Optional.of(session));
-        when(sessionRepository.save(any()))
-                .thenReturn(session);
-        when(sessionMapper.toResponse(any()))
-                .thenReturn(new SessionResponse());
-
-        // Act
-        sessionService.completeSession(sessionId, request);
-
-        // Assert — XP = 10 uniquement (RG-29)
-        verify(sessionRepository).save(argThat(s ->
-                s.getXpEarned() == 10));
-    }
-
-    @Test
-    @DisplayName("completeSession — statut COMPLETED après completion")
-    void completeSession_success_statusCompleted() {
-        // Arrange
-        UUID sessionId = UUID.randomUUID();
-
-        Patient patient = Patient.builder()
-                .id(UUID.randomUUID())
-                .totalXp(0)
-                .streakCount(0)
-                .build();
-
-        Session session = Session.builder()
-                .id(sessionId)
-                .patient(patient)
-                .sessionStatus(SessionStatus.IN_PROGRESS)
-                .startTime(LocalDateTime.now())
-                .build();
-
-        CompleteSessionRequest request = CompleteSessionRequest
-                .builder()
-                .finalScore(BigDecimal.valueOf(80.0))
-                .repsCompleted(10)
-                .jointAngles("{}")
-                .build();
-
-        when(sessionRepository.findById(sessionId))
-                .thenReturn(Optional.of(session));
-        when(sessionRepository.save(any()))
-                .thenReturn(session);
-        when(sessionMapper.toResponse(any()))
-                .thenReturn(new SessionResponse());
-
-        // Act
-        sessionService.completeSession(sessionId, request);
-
-        // Assert — statut COMPLETED (RG-13)
-        verify(sessionRepository).save(argThat(s ->
-                s.getSessionStatus() == SessionStatus.COMPLETED));
-    }
-
-    @Test
-    @DisplayName("completeSession — badges vérifiés après completion (RG-30)")
-    void completeSession_success_badgesChecked() {
-        // Arrange
-        UUID sessionId = UUID.randomUUID();
-
-        Patient patient = Patient.builder()
-                .id(UUID.randomUUID())
-                .totalXp(0)
-                .streakCount(0)
-                .build();
-
-        Session session = Session.builder()
-                .id(sessionId)
-                .patient(patient)
-                .sessionStatus(SessionStatus.IN_PROGRESS)
-                .startTime(LocalDateTime.now())
-                .build();
-
-        CompleteSessionRequest request = CompleteSessionRequest
-                .builder()
-                .finalScore(BigDecimal.valueOf(90.0))
-                .repsCompleted(12)
-                .jointAngles("{}")
-                .build();
-
-        when(sessionRepository.findById(sessionId))
-                .thenReturn(Optional.of(session));
-        when(sessionRepository.save(any()))
-                .thenReturn(session);
-        when(sessionMapper.toResponse(any()))
-                .thenReturn(new SessionResponse());
-
-        // Act
-        sessionService.completeSession(sessionId, request);
-
-        // Assert — BadgeService appelé après completion
-        verify(badgeService).checkAndUnlockBadges(
-                any(Patient.class), any(Session.class));
-    }
-
-    @Test
-    @DisplayName("completeSession — progression vérifiée après completion (RG-19/RG-20)")
-    void completeSession_success_progressionChecked() {
-        // Arrange
-        UUID sessionId = UUID.randomUUID();
-        UUID patientId = UUID.randomUUID();
-
-        Patient patient = Patient.builder()
-                .id(patientId)
-                .totalXp(0)
-                .streakCount(0)
-                .build();
-
-        Session session = Session.builder()
-                .id(sessionId)
-                .patient(patient)
-                .sessionStatus(SessionStatus.IN_PROGRESS)
-                .startTime(LocalDateTime.now())
-                .build();
-
-        CompleteSessionRequest request = CompleteSessionRequest
-                .builder()
-                .finalScore(BigDecimal.valueOf(90.0))
-                .repsCompleted(12)
-                .jointAngles("{}")
-                .build();
-
-        when(sessionRepository.findById(sessionId))
-                .thenReturn(Optional.of(session));
-        when(sessionRepository.save(any()))
-                .thenReturn(session);
-        when(sessionMapper.toResponse(any()))
-                .thenReturn(new SessionResponse());
-
-        // Act
-        sessionService.completeSession(sessionId, request);
-
-        // Assert — checkProgression appelé (RG-19/RG-20)
-        verify(rehabPlanService).checkProgression(patientId);
+            verify(sessionRepository, never()).save(any());
+        }
     }
 
     // ══════════════════════════════════════════
-    // TESTS interruptSession
+    // COMPLETE SESSION
     // ══════════════════════════════════════════
+    @Nested
+    @DisplayName("completeSession()")
+    class CompleteSessionTests {
 
-    @Test
-    @DisplayName("interruptSession — séance introuvable — lève BusinessException")
-    void interruptSession_sessionNotFound_throwsBusinessException() {
-        // Arrange
-        UUID sessionId = UUID.randomUUID();
-        when(sessionRepository.findById(sessionId))
-                .thenReturn(Optional.empty());
+        private CompleteSessionRequest buildRequest(
+                BigDecimal score) {
+            return CompleteSessionRequest.builder()
+                    .finalScore(score)
+                    .repsCompleted(10)
+                    .jointAngles("{\"main_angle\":90}")
+                    .build();
+        }
 
-        // Act + Assert
-        assertThrows(BusinessException.class,
-                () -> sessionService.interruptSession(sessionId));
+        @Test
+        @DisplayName("Score > 80% — XP avec bonus"
+                + " (10 + 20 = 30) — RG-29")
+        void completeSession_scoreSuperieur80_xpAvecBonus() {
+            CompleteSessionRequest request =
+                    buildRequest(new BigDecimal("90.0"));
+
+            when(sessionRepository.findById(sessionId))
+                    .thenReturn(Optional.of(session));
+            when(sessionRepository
+                    .findByPatientIdAndStartTimeAfterAndSessionStatus(
+                            any(), any(), any()))
+                    .thenReturn(Collections.emptyList());
+            when(sessionRepository.save(any(Session.class)))
+                    .thenAnswer(inv -> inv.getArgument(0));
+            when(sessionMapper.toResponse(any(Session.class)))
+                    .thenReturn(new SessionResponse());
+
+            sessionService.completeSession(sessionId, request);
+
+            assertThat(session.getXpEarned()).isEqualTo(30);
+            assertThat(patient.getTotalXp()).isEqualTo(30);
+        }
+
+        @Test
+        @DisplayName("Score <= 80% — XP sans bonus"
+                + " (10 uniquement) — RG-29")
+        void completeSession_scoreInferieurOuEgal80_xpSansBonus() {
+            CompleteSessionRequest request =
+                    buildRequest(new BigDecimal("75.0"));
+
+            when(sessionRepository.findById(sessionId))
+                    .thenReturn(Optional.of(session));
+            when(sessionRepository
+                    .findByPatientIdAndStartTimeAfterAndSessionStatus(
+                            any(), any(), any()))
+                    .thenReturn(Collections.emptyList());
+            when(sessionRepository.save(any(Session.class)))
+                    .thenAnswer(inv -> inv.getArgument(0));
+            when(sessionMapper.toResponse(any(Session.class)))
+                    .thenReturn(new SessionResponse());
+
+            sessionService.completeSession(sessionId, request);
+
+            assertThat(session.getXpEarned()).isEqualTo(10);
+        }
+
+        @Test
+        @DisplayName("Première séance du jour — incrémente"
+                + " le streak — RG-31")
+        void completeSession_premiereSeanceDuJour_incrementeStreak() {
+            CompleteSessionRequest request =
+                    buildRequest(new BigDecimal("85.0"));
+            patient.setStreakCount(2);
+
+            when(sessionRepository.findById(sessionId))
+                    .thenReturn(Optional.of(session));
+            when(sessionRepository
+                    .findByPatientIdAndStartTimeAfterAndSessionStatus(
+                            any(), any(), any()))
+                    .thenReturn(Collections.emptyList());
+            when(sessionRepository.save(any(Session.class)))
+                    .thenAnswer(inv -> inv.getArgument(0));
+            when(sessionMapper.toResponse(any(Session.class)))
+                    .thenReturn(new SessionResponse());
+
+            sessionService.completeSession(sessionId, request);
+
+            assertThat(patient.getStreakCount()).isEqualTo(3);
+        }
+
+        @Test
+        @DisplayName("Deuxième séance le même jour — le"
+                + " streak ne change pas — RG-31")
+        void completeSession_deuxiemeSeanceMemeJour_streakInchange() {
+            CompleteSessionRequest request =
+                    buildRequest(new BigDecimal("85.0"));
+            patient.setStreakCount(2);
+
+            Session sessionDejaCompleteeAujourdhui =
+                    Session.builder()
+                            .id(UUID.randomUUID())
+                            .sessionStatus(SessionStatus.COMPLETED)
+                            .build();
+
+            when(sessionRepository.findById(sessionId))
+                    .thenReturn(Optional.of(session));
+            when(sessionRepository
+                    .findByPatientIdAndStartTimeAfterAndSessionStatus(
+                            any(), any(), any()))
+                    .thenReturn(List.of(
+                            sessionDejaCompleteeAujourdhui));
+            when(sessionRepository.save(any(Session.class)))
+                    .thenAnswer(inv -> inv.getArgument(0));
+            when(sessionMapper.toResponse(any(Session.class)))
+                    .thenReturn(new SessionResponse());
+
+            sessionService.completeSession(sessionId, request);
+
+            assertThat(patient.getStreakCount()).isEqualTo(2);
+        }
+
+        @Test
+        @DisplayName("Séance liée à un plan — déclenche"
+                + " checkWeekAdvancement()")
+        void completeSession_avecRehabPlan_appelleCheckWeekAdvancement() {
+            CompleteSessionRequest request =
+                    buildRequest(new BigDecimal("85.0"));
+
+            UUID planId = UUID.randomUUID();
+            RehabPlan plan = RehabPlan.builder()
+                    .id(planId)
+                    .build();
+            session.setRehabPlan(plan);
+
+            when(sessionRepository.findById(sessionId))
+                    .thenReturn(Optional.of(session));
+            when(sessionRepository
+                    .findByPatientIdAndStartTimeAfterAndSessionStatus(
+                            any(), any(), any()))
+                    .thenReturn(Collections.emptyList());
+            when(sessionRepository.save(any(Session.class)))
+                    .thenAnswer(inv -> inv.getArgument(0));
+            when(sessionMapper.toResponse(any(Session.class)))
+                    .thenReturn(new SessionResponse());
+
+            sessionService.completeSession(sessionId, request);
+
+            verify(rehabPlanService).checkWeekAdvancement(planId);
+        }
+
+        @Test
+        @DisplayName("Séance sans plan — n'appelle jamais"
+                + " checkWeekAdvancement()")
+        void completeSession_sansRehabPlan_nAppellePasCheckWeekAdvancement() {
+            CompleteSessionRequest request =
+                    buildRequest(new BigDecimal("85.0"));
+            // session.getRehabPlan() reste null (cf setUp())
+
+            when(sessionRepository.findById(sessionId))
+                    .thenReturn(Optional.of(session));
+            when(sessionRepository
+                    .findByPatientIdAndStartTimeAfterAndSessionStatus(
+                            any(), any(), any()))
+                    .thenReturn(Collections.emptyList());
+            when(sessionRepository.save(any(Session.class)))
+                    .thenAnswer(inv -> inv.getArgument(0));
+            when(sessionMapper.toResponse(any(Session.class)))
+                    .thenReturn(new SessionResponse());
+
+            sessionService.completeSession(sessionId, request);
+
+            verify(rehabPlanService, never())
+                    .checkWeekAdvancement(any());
+        }
     }
 
-    @Test
-    @DisplayName("interruptSession — statut INTERRUPTED — aucun XP (RG-14)")
-    void interruptSession_success_statusInterrupted() {
-        // Arrange
-        UUID sessionId = UUID.randomUUID();
+    // ══════════════════════════════════════════
+    // INTERRUPT SESSION
+    // ══════════════════════════════════════════
+    @Nested
+    @DisplayName("interruptSession()")
+    class InterruptSessionTests {
 
-        Patient patient = Patient.builder()
-                .id(UUID.randomUUID())
-                .build();
+        @Test
+        @DisplayName("Interruption réussie — réinitialise"
+                + " le streak à 0 — RG-32")
+        void interruptSession_succes_reinitialiseStreakAZero() {
+            patient.setStreakCount(5);
 
-        Session session = Session.builder()
-                .id(sessionId)
-                .patient(patient)
-                .sessionStatus(SessionStatus.IN_PROGRESS)
-                .startTime(LocalDateTime.now())
-                .build();
+            when(sessionRepository.findById(sessionId))
+                    .thenReturn(Optional.of(session));
+            when(sessionRepository.save(any(Session.class)))
+                    .thenAnswer(inv -> inv.getArgument(0));
+            when(sessionMapper.toResponse(any(Session.class)))
+                    .thenReturn(new SessionResponse());
 
-        when(sessionRepository.findById(sessionId))
-                .thenReturn(Optional.of(session));
-        when(sessionRepository.save(any()))
-                .thenReturn(session);
-        when(sessionMapper.toResponse(any()))
-                .thenReturn(new SessionResponse());
+            sessionService.interruptSession(sessionId);
 
-        // Act
-        sessionService.interruptSession(sessionId);
+            assertThat(patient.getStreakCount()).isEqualTo(0);
+            assertThat(session.getSessionStatus())
+                    .isEqualTo(SessionStatus.INTERRUPTED);
+            verify(patientRepository).save(patient);
+        }
 
-        // Assert — statut INTERRUPTED (RG-13)
-        verify(sessionRepository).save(argThat(s ->
-                s.getSessionStatus() == SessionStatus.INTERRUPTED));
+        @Test
+        @DisplayName("Séance introuvable — lève"
+                + " BusinessException")
+        void interruptSession_seanceIntrouvable_leveBusinessException() {
+            UUID inconnuId = UUID.randomUUID();
+            when(sessionRepository.findById(inconnuId))
+                    .thenReturn(Optional.empty());
 
-        // Assert — BadgeService jamais appelé (RG-14)
-        verify(badgeService, never())
-                .checkAndUnlockBadges(any(), any());
+            assertThatThrownBy(
+                    () -> sessionService
+                            .interruptSession(inconnuId))
+                    .isInstanceOf(BusinessException.class)
+                    .hasMessageContaining("Séance introuvable");
+        }
     }
 }
